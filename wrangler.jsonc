@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "multi-restaurant-qr-ordering",
+  "compatibility_date": "2024-05-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": ".open-next/worker.js",
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "multi-restaurant-db",
+      "database_id": "692b7c36-eecb-470b-9582-02018237a065",
+      "migrations_dir": "src/db/migrations"
+    }
+  ]
+}

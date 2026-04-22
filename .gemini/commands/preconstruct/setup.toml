@@ -1,0 +1,71 @@
+description = "Initialize the project environment and folder hierarchy based on the approved Design pillars and templated setup knowledge."
+
+prompt = '''
+Initialize the project environment and generate the base file structure using a design-led, template-first approach.
+
+**Input**: Triggered by `/tangram:setup`. 
+
+**Hierarchy of Truth**
+1. **The User Prompt**: Direct instructions in the current message take absolute precedence.
+2. **User Project Knowledge**: Templated setup rules and boilerplate standards found in `.gemini/knowledge/setup/**`.
+3. **Internal AI Knowledge**: General defaults (fallback only).
+
+**Steps**
+
+1. **Deep Knowledge Scan & Synthesis**
+   - Read `tangram/design/structure.md` and `tangram/design/stack.md`.
+   - **Mandatory Scan**: Check `.gemini/knowledge/setup/**` for existing knowledge about "templated setups" or "project boilerplates." 
+   - If a template exists (e.g., a standard React/Node structure, internal CI/CD folder tree, or custom boilerplate), use it as the foundational blueprint to streamline the app building.
+
+2. **Hierarchy Merging**
+   Merge the requirements from the **Design Pillars** with the identified **Setup Templates**. 
+   *Rule:* If the template and the project-specific Design pillars contradict, the **Design Pillar** wins, as it represents the specific decision for this build.
+
+3. **Safety Scan (No Blind Overwrites)**
+   Scan the root directory. If folders already exist:
+   - Use **AskUserQuestion**: "Existing project structure detected. Should I (A) Only add missing folders/files or (B) Perform a clean reset (WARNING: Data loss)?"
+   - Stop and wait for user response.
+
+4. **Construction Phase: Folder & Template Execution**
+   - Create the directory hierarchy using the folder names and locations from the **Setup Template**.
+   - Ensure all additions align with the **Structure** pillar.
+
+5. **Boilerplate & Config Generation**
+   Generate "Foundation Files" using the specific logic found in `knowledge/setup/**`:
+   - **Standard Configs**: Generate the exact skeletons (e.g., `package.json`, `tsconfig.json`, `Dockerfile`, `requirements.txt`) defined in your templates.
+   - **README.md & .gitignore**: Auto-populate with the template's standard ignore-lists and documentation headers.
+   - **Environment**: Create `.env.example` with standard keys defined in the setup knowledge.
+
+6. **Tooling & Environment Check**
+   Verify that the required runtimes (e.g., Node.js, Docker, Python) are installed based on the **Stack** pillar and the **Setup Template** requirements.
+
+7. **Wait for Approval**
+   Display the resulting directory tree and list the templates applied. Ask: "The project skeleton is ready. Should I finalize the creation of these files and install dependencies?"
+   *Pause and wait for user response.*
+
+8. **Finalize & Write**
+   Execute the file writes and folder creations.
+
+9. **Dependency Installation**
+   Based on the `stack.md` and generated config files, execute the appropriate package manager commands in the terminal (e.g., `npm install`, `pip install`, `yarn install`, `cargo build`) to ensure all base dependencies are ready to go.
+
+**Output On Success**
+
+> ## Project Setup Complete
+> 
+> **Template Applied:** <Name of Template from knowledge/setup/** or 'Custom'>
+> **Target Structure:** Aligned with design/structure.md + Setup Knowledge.
+> 
+> **Initialized Items:**
+> - Directory hierarchy (Streamlined via Templates)
+> - Standard Boilerplate (.gitignore, README, Configs)
+> - Dependency Skeletons & .env.example
+> - Base dependencies installed successfully
+> 
+> **Next Action:** Your workspace is ready. You can now run `/tangram:plan` to start the first sprint.
+
+**Guardrails**
+- **Streamlining**: Use the knowledge in `setup/**` to skip repetitive decision-making and automate the "boring" parts of the folder creation.
+- **Traceability**: Always cite the specific template or knowledge file that influenced the project structure.
+- **Strict Loop**: Suggest -> Approve -> Write & Install -> Confirm.
+'''

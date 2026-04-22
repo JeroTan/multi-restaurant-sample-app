@@ -1,0 +1,101 @@
+### Test Backend Core API (VS Code REST Client Format)
+
+@baseUrl = http://localhost:3000/api
+
+### 1. Create Tenant
+# @name createTenant
+POST {{baseUrl}}/admin/tenants
+Content-Type: application/json
+
+{
+  "name": "Test Restaurant",
+  "slug": "test-restaurant-01"
+}
+
+###
+@tenantId = {{createTenant.response.body.id}}
+
+### 2. Create Table
+# @name createTable
+POST {{baseUrl}}/admin/tables
+Content-Type: application/json
+
+{
+  "tenantId": "{{tenantId}}",
+  "tableNumbers": ["12", "14"]
+}
+
+###
+@tableId = {{createTable.response.body.0.id}}
+@tableNumber = {{createTable.response.body.0.tableNumber}}
+@signature = {{createTable.response.body.0.qrCodeSignature}}
+
+### 3. Create Category
+# @name createCategory
+POST {{baseUrl}}/admin/menu/categories
+Content-Type: application/json
+
+{
+  "tenantId": "{{tenantId}}",
+  "name": "Mains",
+  "order": 1
+}
+
+###
+@categoryId = {{createCategory.response.body.id}}
+
+### 4. Create Dish
+# @name createDish
+POST {{baseUrl}}/admin/menu/dishes
+Content-Type: application/json
+
+{
+  "tenantId": "{{tenantId}}",
+  "categoryId": "{{categoryId}}",
+  "name": "Burger",
+  "description": "Tasty burger",
+  "price": 12.99,
+  "imageUrl": ""
+}
+
+###
+@dishId = {{createDish.response.body.id}}
+
+### 5. Customer Gets Menu
+GET {{baseUrl}}/customer/menu?tenantId={{tenantId}}
+
+### 6. Customer Submits Order (Valid Signature)
+# @name submitOrder
+POST {{baseUrl}}/customer/orders
+Content-Type: application/json
+
+{
+  "tenantId": "{{tenantId}}",
+  "tableId": "{{tableId}}",
+  "tableNumber": "{{tableNumber}}",
+  "signature": "{{signature}}",
+  "totalPrice": 12.99,
+  "items": [
+    {
+      "dishId": "{{dishId}}",
+      "quantity": 1,
+      "price": 12.99,
+      "notes": "No onions"
+    }
+  ]
+}
+
+###
+@orderId = {{submitOrder.response.body.order.id}}
+
+### 7. Staff Gets Orders
+GET {{baseUrl}}/admin/orders?tenantId={{tenantId}}
+
+### 8. Staff Updates Order Status
+PATCH {{baseUrl}}/admin/orders/{{orderId}}
+Content-Type: application/json
+
+{
+  "tenantId": "{{tenantId}}",
+  "status": "preparing"
+}

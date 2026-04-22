@@ -1,0 +1,13 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1776846159898,
+      "tag": "0000_sparkling_wolfsbane",
+      "breakpoints": true
+    }
+  ]
+}
