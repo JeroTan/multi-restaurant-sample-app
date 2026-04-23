@@ -20,7 +20,7 @@
   "migrations": [
     {
       "tag": "v1",
-      "new_classes": ["OrderSync"]
+      "new_sqlite_classes": ["OrderSync"]
     }
   ],
   "services": [
