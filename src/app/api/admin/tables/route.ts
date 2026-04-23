@@ -2,8 +2,25 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/db';
 import { tables } from '@/db/schema';
 import { signTableUrl } from '@/lib/utils';
+import { eq, asc } from 'drizzle-orm';
 
-
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const tenantId = searchParams.get('tenantId');
+    
+    if (!tenantId) {
+      return NextResponse.json({ error: 'tenantId is required' }, { status: 400 });
+    }
+    
+    const db = getDb();
+    const allTables = await db.select().from(tables).where(eq(tables.tenantId, tenantId)).orderBy(asc(tables.tableNumber));
+    
+    return NextResponse.json(allTables);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {
