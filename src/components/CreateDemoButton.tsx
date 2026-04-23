@@ -23,7 +23,7 @@ export default function CreateDemoButton() {
       const tenantRes = await fetch("/api/admin/tenants", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: "Tangram Demo Resto", slug }),
+        body: JSON.stringify({ name: "Demo Restaurant", slug }),
       });
       if (!tenantRes.ok) throw new Error("Failed to create tenant");
       const tenant = await tenantRes.json() as any;
@@ -53,7 +53,7 @@ export default function CreateDemoButton() {
           body: JSON.stringify({
             tenantId: tenant.id,
             categoryId: category.id,
-            name: "Tangram Burger",
+            name: "Classic Burger",
             description: "A perfect demo burger with edge-native sauce.",
             price: 14.99,
           }),

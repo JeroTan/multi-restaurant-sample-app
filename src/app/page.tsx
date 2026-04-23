@@ -11,7 +11,7 @@ export default function HomePage() {
             <Store className="w-12 h-12 text-blue-600" />
           </div>
           <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
-            Tangram QR Ordering
+            Multi QR Ordering System
           </h1>
           <p className="text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto mb-8">
             The multi-tenant edge-native platform for modern restaurants. Manage menus, process live orders, and delight customers with instant QR-based dining.
@@ -68,7 +68,7 @@ export default function HomePage() {
 
         {/* Footer/Note */}
         <div className="mt-16 text-center text-sm text-gray-400">
-          <p>Tangram Architecture • Edge-Native Next.js • Cloudflare D1</p>
+          <p>Edge-Native Next.js • Cloudflare D1</p>
         </div>
       </div>
     </div>
