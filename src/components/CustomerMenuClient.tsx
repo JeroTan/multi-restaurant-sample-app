@@ -1,12 +1,52 @@
 "use client";
-import { useState } from 'react';
-import { ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ShoppingCart, Plus, Minus, Trash2, Clock, CheckCircle2, RefreshCw } from 'lucide-react';
 
 export default function CustomerMenuClient({ tenant, table, signature, categories, dishes }: any) {
   const [cart, setCart] = useState<any[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  
+  // Tracking State
+  const [activeOrders, setActiveOrders] = useState<any[]>([]);
+
+  const fetchActiveOrders = async () => {
+    try {
+      const res = await fetch(`/api/customer/orders?tenantId=${tenant.id}&tableId=${table.id}&tableNumber=${table.tableNumber}&signature=${signature}`);
+      if (res.ok) {
+        const data = await res.json() as any[];
+        setActiveOrders(data);
+      }
+    } catch (e) {
+      console.error('Failed to fetch orders:', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchActiveOrders();
+    
+    // WebSocket Setup
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws?tableId=${table.id}`;
+    let ws = new WebSocket(wsUrl);
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'order-update') {
+        fetchActiveOrders();
+      }
+    };
+
+    ws.onclose = () => {
+      // Reconnect after 3 seconds if closed
+      setTimeout(() => {
+        fetchActiveOrders(); // Final poll just in case
+      }, 3000);
+    };
+
+    return () => ws.close();
+  }, [tenant.id, table.id, signature]);
 
   const addToCart = (dish: any) => {
     setCart(prev => {
@@ -49,6 +89,7 @@ export default function CustomerMenuClient({ tenant, table, signature, categorie
         setCart([]);
         setIsCartOpen(false);
         setOrderSuccess(true);
+        fetchActiveOrders(); // Immediately refresh tracking
       } else {
         const error = await res.json() as any;
         alert('Failed: ' + error.error);
@@ -60,18 +101,13 @@ export default function CustomerMenuClient({ tenant, table, signature, categorie
     }
   };
 
-  if (orderSuccess) {
-    return (
-      <div className="p-8 text-center flex flex-col items-center justify-center min-h-[50vh]">
-        <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
-          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-        </div>
-        <h2 className="text-2xl font-bold text-gray-900">Order Placed!</h2>
-        <p className="text-gray-500 mt-2">Your food is being prepared.</p>
-        <button onClick={() => setOrderSuccess(false)} className="mt-6 text-blue-600 font-medium">Order More</button>
-      </div>
-    );
-  }
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'preparing': return 'text-blue-600 bg-blue-50 border-blue-100';
+      case 'served': return 'text-green-600 bg-green-50 border-green-100';
+      default: return 'text-orange-600 bg-orange-50 border-orange-100';
+    }
+  };
 
   return (
     <div className="relative pb-24">
@@ -81,15 +117,59 @@ export default function CustomerMenuClient({ tenant, table, signature, categorie
         <p className="text-gray-500 font-medium">Table {table.tableNumber}</p>
       </div>
 
+      {/* Active Orders Section */}
+      {activeOrders.length > 0 && (
+        <div className="p-4 bg-gray-50 border-b border-gray-200">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider px-1 flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              Your Active Orders
+            </h2>
+            <span className="text-[10px] text-blue-500 font-medium bg-blue-50 px-2 py-0.5 rounded-full animate-pulse border border-blue-100">
+              Auto-updating
+            </span>
+          </div>
+          <p className="text-[11px] text-gray-400 px-1 mb-3 italic">
+            We will update the status of your order automatically.
+          </p>
+          <div className="space-y-3">
+            {activeOrders.map(order => (
+              <div key={order.id} className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                <div className="flex justify-between items-center mb-2">
+                  <span className={`text-xs font-bold px-2 py-1 rounded-full border ${getStatusColor(order.status)}`}>
+                    {order.status.toUpperCase()}
+                  </span>
+                  <span className="text-xs text-gray-400">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
+                <div className="space-y-1">
+                  {order.items.map((item: any) => (
+                    <div key={item.id} className="flex justify-between text-sm">
+                      <span className="text-gray-700">{item.quantity}x {dishes.find((d: any) => d.id === item.dishId)?.name || 'Dish'}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Menu List */}
       <div className="p-4 space-y-8">
+        {orderSuccess && (
+          <div className="bg-green-50 border border-green-200 p-4 rounded-xl text-center mb-6">
+            <p className="text-green-800 font-bold">Order received! Tracking it above.</p>
+            <button onClick={() => setOrderSuccess(false)} className="text-xs text-green-600 underline mt-1">Dismiss</button>
+          </div>
+        )}
+
         {categories.sort((a: any, b: any) => a.order - b.order).map((cat: any) => (
           <div key={cat.id}>
             <h2 className="text-xl font-bold text-gray-800 mb-4">{cat.name}</h2>
             <div className="space-y-4">
               {dishes.filter((d: any) => d.categoryId === cat.id).map((dish: any) => (
                 <div key={dish.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
-                  <div>
+                  <div className="flex-1 pr-4">
                     <h3 className="font-bold text-gray-900">{dish.name}</h3>
                     <p className="text-sm text-gray-500 mt-1 line-clamp-2">{dish.description}</p>
                     <p className="font-semibold text-gray-900 mt-2">${dish.price.toFixed(2)}</p>

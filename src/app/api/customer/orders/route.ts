@@ -2,8 +2,49 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/db';
 import { orders, orderItems } from '@/db/schema';
 import { signTableUrl } from '@/lib/utils';
+import { eq, and, ne } from 'drizzle-orm';
 
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const tenantId = searchParams.get('tenantId');
+    const tableId = searchParams.get('tableId');
+    const tableNumber = searchParams.get('tableNumber');
+    const signature = searchParams.get('signature');
 
+    if (!tenantId || !tableId || !tableNumber || !signature) {
+      return NextResponse.json({ error: 'Missing required tracking parameters' }, { status: 400 });
+    }
+
+    // Security: Validate HMAC Signature
+    const secret = process.env.JWT_SECRET || 'fallback-secret';
+    const expectedSignature = await signTableUrl(tenantId, tableNumber, secret);
+    
+    if (signature !== expectedSignature) {
+      return NextResponse.json({ error: 'Invalid table signature' }, { status: 403 });
+    }
+
+    const db = getDb();
+    
+    // Fetch active orders for this table (not completed or cancelled)
+    const activeOrders = await db.select().from(orders).where(and(
+      eq(orders.tenantId, tenantId),
+      eq(orders.tableId, tableId),
+      ne(orders.status, 'completed'),
+      ne(orders.status, 'cancelled')
+    )).orderBy(orders.createdAt);
+
+    // Fetch items for these orders
+    const ordersWithItems = await Promise.all(activeOrders.map(async (order) => {
+      const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
+      return { ...order, items };
+    }));
+
+    return NextResponse.json(ordersWithItems);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {
