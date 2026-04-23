@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     const expectedSignature = await signTableUrl(tenantId, tableNumber, secret);
     
     if (signature !== expectedSignature) {
+      console.error(`[Order Security] Signature mismatch. Received: ${signature}, Expected: ${expectedSignature} for Table: ${tableNumber}, Tenant: ${tenantId}`);
       return NextResponse.json({ error: 'Invalid table signature. Forgery detected.' }, { status: 403 });
     }
 

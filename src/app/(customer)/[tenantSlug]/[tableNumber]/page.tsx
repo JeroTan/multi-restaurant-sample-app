@@ -13,6 +13,9 @@ export default async function CustomerPage({
 }) {
   const db = getDb();
   
+  // Sanitize input: tableNumber in URL might be encoded (e.g., Patio%201)
+  const decodedTableNumber = decodeURIComponent(params.tableNumber);
+  
   // 1. Resolve Tenant
   const [tenant] = await db.select().from(tenants).where(eq(tenants.slug, params.tenantSlug));
   if (!tenant) return notFound();
@@ -21,10 +24,14 @@ export default async function CustomerPage({
   const [table] = await db.select().from(tables).where(
     and(
       eq(tables.tenantId, tenant.id),
-      eq(tables.tableNumber, params.tableNumber)
+      eq(tables.tableNumber, decodedTableNumber)
     )
   );
-  if (!table) return notFound();
+  
+  if (!table) {
+    console.error(`[Table Resolution] Table not found: "${decodedTableNumber}" for tenant: ${tenant.id}`);
+    return notFound();
+  }
 
   // 3. Validate Signature (Optional here, but strictly enforced on POST order)
   const signature = searchParams.sig;
