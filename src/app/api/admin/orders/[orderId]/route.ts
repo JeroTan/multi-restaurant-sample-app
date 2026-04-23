@@ -3,12 +3,12 @@ import { getDb } from '@/db';
 import { orders } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 
-export const runtime = 'edge';
+
 
 export async function PATCH(request: Request, { params }: { params: { orderId: string } }) {
   try {
     const db = getDb();
-    const body = await request.json();
+    const body = await request.json() as any;
     const { tenantId, status } = body;
     
     if (!tenantId || !status) {

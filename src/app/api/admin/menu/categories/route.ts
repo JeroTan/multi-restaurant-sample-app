@@ -3,7 +3,7 @@ import { getDb } from '@/db';
 import { categories } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
-export const runtime = 'edge';
+
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const db = getDb();
-    const body = await request.json();
+    const body = await request.json() as any;
     const { tenantId, name, order } = body;
     
     if (!tenantId || !name) {

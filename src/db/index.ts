@@ -3,11 +3,11 @@ import * as schema from "./schema";
 
 export function getDb() {
   // In the Cloudflare Edge runtime (via OpenNext), bindings like D1 
-  // are often injected into process.env. We cast it to the expected D1Database type.
-  const dbBinding = process.env.DB as unknown as D1Database;
+  // are accessed via process.env
+  const dbBinding = (process.env as unknown as Env).DB;
   
   if (!dbBinding) {
-    throw new Error("D1 Database binding 'DB' is missing from process.env.");
+    throw new Error("D1 Database binding 'DB' is missing from env.");
   }
 
   return drizzle(dbBinding, { schema });

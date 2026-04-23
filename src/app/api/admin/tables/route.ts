@@ -3,7 +3,7 @@ import { getDb } from '@/db';
 import { tables } from '@/db/schema';
 import { signTableUrl } from '@/lib/utils';
 
-export const runtime = 'edge';
+
 
 export async function POST(request: Request) {
   try {

@@ -13,21 +13,21 @@
 ## III. Atomic Task List
 
 ### Database & Utilities
-- [ ] **Task 1: Drizzle DB Instantiation**
+- [x] **Task 1: Drizzle DB Instantiation**
   > **Detailed Summary:** Create `src/db/index.ts`. It will initialize the Drizzle client using the `process.env.DB` binding (Cloudflare D1). We will also apply the initial migration to the local D1 instance using `npm run db:migrate`.
 
 ### API Layer - Admin/Staff Operations
-- [ ] **Task 2: Tenant & Table API (Onboarding & QR)**
+- [x] **Task 2: Tenant & Table API (Onboarding & QR)**
   > **Detailed Summary:** Create `src/app/api/admin/tenants/route.ts` to register a mock tenant. Create `src/app/api/admin/tables/route.ts` to bulk-generate tables for a tenant. This endpoint will utilize the `signTableUrl` utility from `src/lib/utils.ts` to generate the secure HMAC signature for each table and store it in D1.
 
-- [ ] **Task 3: Menu Management API (Categories & Dishes)**
+- [x] **Task 3: Menu Management API (Categories & Dishes)**
   > **Detailed Summary:** Create `src/app/api/admin/menu/categories/route.ts` and `src/app/api/admin/menu/dishes/route.ts`. Implement `POST` and `GET` handlers. All operations MUST require a `tenantId` payload/header to enforce strict data isolation.
 
-- [ ] **Task 4: Order Management API (Staff View)**
+- [x] **Task 4: Order Management API (Staff View)**
   > **Detailed Summary:** Create `src/app/api/admin/orders/route.ts` to fetch all active orders for a specific `tenantId` (polling endpoint). Create `src/app/api/admin/orders/[orderId]/route.ts` with a `PATCH` method to allow staff to update the order status (`pending` -> `preparing` -> `served`).
 
 ### API Layer - Customer Operations
-- [ ] **Task 5: Customer Ordering API**
+- [x] **Task 5: Customer Ordering API**
   > **Detailed Summary:** Create `src/app/api/customer/menu/route.ts` (GET) to fetch a tenant's menu based on `tenantId`. Create `src/app/api/customer/orders/route.ts` (POST) to allow customers to submit an order. This endpoint MUST validate the HMAC signature of the table before accepting the order to prevent forgery.
 
 ### Verification Implementation

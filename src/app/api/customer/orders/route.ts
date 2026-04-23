@@ -3,12 +3,12 @@ import { getDb } from '@/db';
 import { orders, orderItems } from '@/db/schema';
 import { signTableUrl } from '@/lib/utils';
 
-export const runtime = 'edge';
+
 
 export async function POST(request: Request) {
   try {
     const db = getDb();
-    const body = await request.json();
+    const body = await request.json() as any;
     const { tenantId, tableId, tableNumber, signature, items, totalPrice } = body;
     
     if (!tenantId || !tableId || !tableNumber || !signature || !items || !items.length) {

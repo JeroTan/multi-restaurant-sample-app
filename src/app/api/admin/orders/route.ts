@@ -3,7 +3,7 @@ import { getDb } from '@/db';
 import { orders } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
-export const runtime = 'edge';
+
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
