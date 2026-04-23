@@ -13,7 +13,8 @@
     "preview": "npm run build:worker && npm run dev:worker",
     "deploy": "npm run build:worker && wrangler deploy",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "wrangler d1 migrations apply multi-restaurant-db --local"
+    "db:migrate": "wrangler d1 migrations apply multi-restaurant-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply multi-restaurant-db --remote"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.4",

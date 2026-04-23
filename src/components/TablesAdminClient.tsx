@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { Plus, Printer } from 'lucide-react';
+import { Plus, Printer, Download } from 'lucide-react';
 import QRCode from 'react-qr-code';
 
 export default function TablesAdminClient({ tenant }: { tenant: any }) {
@@ -45,6 +45,38 @@ export default function TablesAdminClient({ tenant }: { tenant: any }) {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const downloadQR = (tableNumber: string, tableId: string) => {
+    const svg = document.getElementById(`qr-${tableId}`);
+    if (!svg) return;
+    
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+    
+    img.onload = () => {
+      // Create padding/margin in the downloaded image (optional, but looks better)
+      const padding = 20;
+      canvas.width = img.width + (padding * 2);
+      canvas.height = img.height + (padding * 2);
+      
+      // Fill with white background
+      if (ctx) {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, padding, padding);
+      }
+      
+      const pngFile = canvas.toDataURL("image/png");
+      const downloadLink = document.createElement("a");
+      downloadLink.download = `Table-${tableNumber}-QR.png`;
+      downloadLink.href = `${pngFile}`;
+      downloadLink.click();
+    };
+    
+    img.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgData)))}`;
   };
 
   // Base URL for QR codes
@@ -94,6 +126,7 @@ export default function TablesAdminClient({ tenant }: { tenant: any }) {
               <div className="bg-white p-2 rounded-lg border border-gray-100">
                 {isClient && (
                   <QRCode 
+                    id={`qr-${table.id}`}
                     value={qrUrl} 
                     size={150} 
                     level="H" 
@@ -105,6 +138,15 @@ export default function TablesAdminClient({ tenant }: { tenant: any }) {
               <p className="mt-4 text-xs text-gray-400 font-mono break-all print:hidden">
                 {qrUrl}
               </p>
+              
+              <button
+                onClick={() => downloadQR(table.tableNumber, table.id)}
+                className="mt-4 flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-md hover:bg-blue-100 transition-colors print:hidden"
+              >
+                <Download className="w-4 h-4" />
+                Download PNG
+              </button>
+
               <p className="mt-4 text-xs text-gray-800 font-medium hidden print:block">
                 Scan to order
               </p>
