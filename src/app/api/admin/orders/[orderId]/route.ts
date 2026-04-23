@@ -28,13 +28,19 @@ export async function PATCH(request: Request, { params }: { params: { orderId: s
       // or directly via global environment in the custom wrapper.
       const env = (process.env as unknown as Env);
       if ((env as any).ORDER_SYNC) {
-        const id = (env as any).ORDER_SYNC.idFromName(updated.tableId);
+        // Now routing to a single Tenant Hub instance
+        const id = (env as any).ORDER_SYNC.idFromName(tenantId);
         const obj = (env as any).ORDER_SYNC.get(id);
         
         // Internal DO call to broadcast the change
         await obj.fetch(new URL("http://localhost/notify"), {
           method: "POST",
-          body: JSON.stringify({ orderId: updated.id, status: updated.status })
+          body: JSON.stringify({ 
+            type: "order-update", 
+            orderId: updated.id, 
+            status: updated.status,
+            tableId: updated.tableId // Essential for customer filtering
+          })
         });
       }
     } catch (broadcastError) {

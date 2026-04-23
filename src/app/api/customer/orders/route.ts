@@ -85,6 +85,28 @@ export async function POST(request: Request) {
     }));
     
     await db.insert(orderItems).values(orderItemsToInsert);
+
+    // Real-Time Push: Notify Tenant Hub of New Order
+    try {
+      const env = (process.env as unknown as Env);
+      if ((env as any).ORDER_SYNC) {
+        const id = (env as any).ORDER_SYNC.idFromName(tenantId);
+        const obj = (env as any).ORDER_SYNC.get(id);
+        
+        await obj.fetch(new URL("http://localhost/notify"), {
+          method: "POST",
+          body: JSON.stringify({ 
+            type: "new-order", 
+            orderId, 
+            tableId, 
+            tableNumber,
+            totalPrice 
+          })
+        });
+      }
+    } catch (broadcastError) {
+      console.error("[Real-Time] Failed to broadcast new order:", broadcastError);
+    }
     
     return NextResponse.json({ success: true, order: newOrder });
   } catch (error: any) {

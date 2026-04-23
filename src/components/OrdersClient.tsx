@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { Clock, CheckCircle2, ChevronRight, RefreshCw } from 'lucide-react';
+import { Clock, CheckCircle2, ChevronRight, RefreshCw, Zap } from 'lucide-react';
 
 export default function OrdersClient({ tenantId }: { tenantId: string }) {
   const [orders, setOrders] = useState<any[]>([]);
@@ -21,8 +21,28 @@ export default function OrdersClient({ tenantId }: { tenantId: string }) {
 
   useEffect(() => {
     fetchOrders();
-    const interval = setInterval(fetchOrders, 10000); // Poll every 10s
-    return () => clearInterval(interval);
+
+    // WebSocket Real-Time Sync
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws?tenantId=${tenantId}`;
+    let ws = new WebSocket(wsUrl);
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      // Admin dashboard refreshes on any relevant event (new order or status change)
+      if (data.type === 'new-order' || data.type === 'order-update') {
+        fetchOrders();
+      }
+    };
+
+    ws.onclose = () => {
+      // Reconnect logic
+      setTimeout(() => {
+        fetchOrders();
+      }, 3000);
+    };
+
+    return () => ws.close();
   }, [tenantId]);
 
   const updateStatus = async (orderId: string, status: string) => {
@@ -32,6 +52,7 @@ export default function OrdersClient({ tenantId }: { tenantId: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tenantId, status })
       });
+      // WebSocket will trigger fetchOrders() for us, but we can call it here for faster feedback
       fetchOrders();
     } catch (e) {
       console.error(e);
@@ -41,7 +62,13 @@ export default function OrdersClient({ tenantId }: { tenantId: string }) {
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Live Orders</h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold text-gray-900">Live Orders</h1>
+          <div className="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100 animate-pulse">
+            <Zap className="w-3.5 h-3.5 fill-current" />
+            <span className="text-xs font-bold uppercase tracking-wider">Live Sync</span>
+          </div>
+        </div>
         <button onClick={fetchOrders} className="p-2 text-gray-500 hover:text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center gap-2">
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh

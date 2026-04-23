@@ -1,9 +1,10 @@
 import { DurableObject } from "cloudflare:workers";
 
 /**
- * OrderSync Durable Object
- * Manages WebSocket connections for a specific restaurant table.
- * When an order status changes, this DO broadcasts the update to all connected clients.
+ * OrderSync Durable Object (Tenant Hub)
+ * Manages WebSocket connections for a specific restaurant (tenant).
+ * Broadcasts events like "new-order" and "order-update" to all connected
+ * staff (admins) and customers.
  */
 export class OrderSync extends DurableObject {
   constructor(state: any, env: any) {
@@ -23,6 +24,7 @@ export class OrderSync extends DurableObject {
       const webSocketPair = new WebSocketPair();
       const [client, server] = Object.values(webSocketPair);
 
+      // Store the connection in the DO context
       this.ctx.acceptWebSocket(server);
 
       return new Response(null, {
@@ -34,7 +36,8 @@ export class OrderSync extends DurableObject {
     // Intercept Notification requests from the API
     if (url.pathname === "/notify" && request.method === "POST") {
       const data = await request.json() as any;
-      this.broadcast(JSON.stringify({ type: "order-update", ...data }));
+      // Broadcast the event to all subscribers in this tenant hub
+      this.broadcast(JSON.stringify(data));
       return new Response("OK");
     }
 
@@ -42,13 +45,18 @@ export class OrderSync extends DurableObject {
   }
 
   broadcast(message: string) {
-    // Iterate through all connected WebSockets and send the message
     const sockets = this.ctx.getWebSockets();
-    sockets.forEach(s => s.send(message));
+    sockets.forEach(s => {
+      try {
+        s.send(message);
+      } catch (e) {
+        // Handle potentially closed sockets gracefully
+      }
+    });
   }
 
   async webSocketMessage(ws: WebSocket, message: string) {
-    // We don't expect messages from the customer yet, but we could handle them here.
+    // Optional: handle client-to-server messages
     console.log("DO received message:", message);
   }
 

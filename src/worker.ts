@@ -16,12 +16,13 @@ export default {
     const url = new URL(request.url);
 
     // 1. Intercept WebSocket Upgrade requests for Real-Time Order Tracking
+    // We now route by tenantId to create a unified restaurant hub
     if (url.pathname === "/ws") {
-      const tableId = url.searchParams.get("tableId");
-      if (!tableId) return new Response("Missing tableId", { status: 400 });
+      const tenantId = url.searchParams.get("tenantId");
+      if (!tenantId) return new Response("Missing tenantId", { status: 400 });
 
-      // Routing to a specific Durable Object instance per table
-      const id = env.ORDER_SYNC.idFromName(tableId);
+      // Routing to a specific Durable Object instance per restaurant
+      const id = env.ORDER_SYNC.idFromName(tenantId);
       const obj = env.ORDER_SYNC.get(id);
       
       return obj.fetch(request);
@@ -31,7 +32,5 @@ export default {
     return handler.fetch(request, env, ctx);
   },
   
-  // Including OrderSync in the default export object as well, 
-  // following the documentation's pattern.
   OrderSync,
 };

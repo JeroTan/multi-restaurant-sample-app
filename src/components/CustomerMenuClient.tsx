@@ -26,14 +26,18 @@ export default function CustomerMenuClient({ tenant, table, signature, categorie
   useEffect(() => {
     fetchActiveOrders();
     
-    // WebSocket Setup
+    // WebSocket Setup (Unified Tenant Hub)
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws?tableId=${table.id}`;
+    const wsUrl = `${protocol}//${window.location.host}/ws?tenantId=${tenant.id}`;
     let ws = new WebSocket(wsUrl);
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.type === 'order-update') {
+      
+      // Customer only refreshes if:
+      // 1. It's a status update for THEIR table
+      // 2. A new order event (can be ignored or used to confirm their own recent placement)
+      if (data.type === 'order-update' && data.tableId === table.id) {
         fetchActiveOrders();
       }
     };
@@ -41,7 +45,7 @@ export default function CustomerMenuClient({ tenant, table, signature, categorie
     ws.onclose = () => {
       // Reconnect after 3 seconds if closed
       setTimeout(() => {
-        fetchActiveOrders(); // Final poll just in case
+        fetchActiveOrders(); 
       }, 3000);
     };
 
