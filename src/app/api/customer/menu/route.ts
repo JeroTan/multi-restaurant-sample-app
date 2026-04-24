@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/db';
 import { categories, dishes } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 
 
@@ -14,8 +14,8 @@ export async function GET(request: Request) {
   }
   
   const db = getDb();
-  const cats = await db.select().from(categories).where(eq(categories.tenantId, tenantId));
-  const items = await db.select().from(dishes).where(eq(dishes.tenantId, tenantId));
+  const cats = await db.select().from(categories).where(and(eq(categories.tenantId, tenantId), eq(categories.isDeleted, false)));
+  const items = await db.select().from(dishes).where(and(eq(dishes.tenantId, tenantId), eq(dishes.isDeleted, false)));
   
   return NextResponse.json({ categories: cats, dishes: items });
 }

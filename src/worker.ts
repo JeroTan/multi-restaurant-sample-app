@@ -7,6 +7,7 @@
 // @ts-ignore - The Next.js bundle will be located here after build
 import { default as handler } from "../.worker-next/index.mjs";
 import { OrderSync } from "./db/order-sync-do";
+import { runDailyCleanup } from "./lib/tasks";
 
 // Durable Object class must be a named export of the worker entry point
 export { OrderSync };
@@ -49,6 +50,10 @@ export default {
 
     // 2. Delegate all other traffic to the OpenNext Next.js handler
     return handler.fetch(request, env, ctx);
+  },
+
+  async scheduled(event: any, env: any, ctx: any) {
+    ctx.waitUntil(runDailyCleanup(env));
   },
   
   OrderSync,

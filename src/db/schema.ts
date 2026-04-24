@@ -23,6 +23,7 @@ export const categories = sqliteTable("categories", {
   tenantId: text("tenant_id").references(() => tenants.id).notNull(),
   name: text("name").notNull(),
   order: integer("order").default(0),
+  isDeleted: integer("is_deleted", { mode: "boolean" }).default(false),
 });
 
 // Dishes
@@ -35,6 +36,7 @@ export const dishes = sqliteTable("dishes", {
   price: real("price").notNull(),
   imageUrl: text("image_url"),
   isSoldOut: integer("is_sold_out", { mode: "boolean" }).default(false),
+  isDeleted: integer("is_deleted", { mode: "boolean" }).default(false),
 });
 
 // Orders

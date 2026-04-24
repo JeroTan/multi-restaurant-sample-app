@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   
   const db = getDb();
   
-  const conditions = [eq(dishes.tenantId, tenantId)];
+  const conditions = [eq(dishes.tenantId, tenantId), eq(dishes.isDeleted, false)];
   if (categoryId) conditions.push(eq(dishes.categoryId, categoryId));
   
   const data = await db.select().from(dishes).where(and(...conditions));

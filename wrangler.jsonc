@@ -45,5 +45,8 @@
       "migrations_dir": "src/db/migrations",
       "remote": true
     }
-  ]
+  ],
+  "triggers": {
+    "crons": ["0 0 * * *"]
+  }
 }

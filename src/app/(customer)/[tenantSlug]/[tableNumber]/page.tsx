@@ -37,8 +37,13 @@ export default async function CustomerPage({
   const signature = searchParams.sig;
 
   // 4. Fetch Menu
-  const cats = await db.select().from(categories).where(eq(categories.tenantId, tenant.id));
-  const items = await db.select().from(dishes).where(eq(dishes.tenantId, tenant.id));
+  const cats = await db.select().from(categories).where(and(eq(categories.tenantId, tenant.id), eq(categories.isDeleted, false)));
+  const items = await db.select().from(dishes).where(
+    and(
+      eq(dishes.tenantId, tenant.id),
+      eq(dishes.isDeleted, false)
+    )
+  );
 
   return (
     <CustomerMenuClient 
