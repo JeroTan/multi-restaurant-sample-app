@@ -9,5 +9,5 @@ Deleted dishes are correctly filtered in API routes, but they still appear on th
 
 ---
 
-- [ ] task 1.5 - [API] Filter Deleted Items in Customer SSR
+- [x] task 1.5 - [API] Filter Deleted Items in Customer SSR
     > **Summary:** Refactor the dish query in `src/app/(customer)/[tenantSlug]/[tableNumber]/page.tsx`. Update the `where` clause to include `and(eq(dishes.tenantId, tenant.id), eq(dishes.isDeleted, false))`. This ensures the initial page load respects the soft-delete status.
