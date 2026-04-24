@@ -17,12 +17,20 @@ import {
 } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
+interface OrderItem {
+  id: string;
+  quantity: number;
+  dishName: string;
+  notes?: string;
+}
+
 interface Order {
   id: string;
   tableId: string;
   totalPrice: number;
   status: string;
   createdAt: string;
+  items: OrderItem[];
 }
 
 // Memoized Card Component
@@ -33,6 +41,7 @@ const DraggableOrderCard = React.memo(({ order, updateStatus }: { order: Order; 
   });
 
   const style = {
+    // Optimization: Remove transform if the card is the one being dragged (handled by DragOverlay)
     transform: isDragging ? undefined : CSS.Translate.toString(transform),
     opacity: isDragging ? 0.3 : 1,
   };
@@ -65,6 +74,18 @@ const DraggableOrderCard = React.memo(({ order, updateStatus }: { order: Order; 
       </div>
       <p className="text-[12px] text-gray-400 mb-4 font-mono">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
       
+      {/* Itemized List */}
+      <div className="mb-6 space-y-2 border-t border-pale-gray pt-4">
+        {order.items.map((item) => (
+          <div key={item.id} className="flex justify-between text-[13px]">
+            <div className="flex gap-2">
+              <span className="font-bold text-apple-blue">{item.quantity}x</span>
+              <span className="text-near-black font-medium">{item.dishName}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {nextStatus && (
         <button
           onPointerDown={(e) => e.stopPropagation()} 
@@ -270,7 +291,16 @@ export default function OrdersClient({ tenantId }: { tenantId: string }) {
               <span className="font-semibold text-near-black">Table {activeOrder.tableId.substring(0, 4)}...</span>
               <span className="font-bold text-apple-blue">${activeOrder.totalPrice.toFixed(2)}</span>
             </div>
-            <p className="text-[12px] text-gray-400 font-mono">{new Date(activeOrder.createdAt).toLocaleTimeString()}</p>
+            <p className="text-[12px] text-gray-400 mb-2 font-mono">{new Date(activeOrder.createdAt).toLocaleTimeString()}</p>
+            
+            <div className="space-y-1 border-t border-pale-gray pt-2">
+              {activeOrder.items.map((item) => (
+                <div key={item.id} className="flex gap-2 text-[12px]">
+                  <span className="font-bold text-apple-blue">{item.quantity}x</span>
+                  <span className="text-near-black">{item.dishName}</span>
+                </div>
+              ))}
+            </div>
           </div>
         ) : null}
       </DragOverlay>
