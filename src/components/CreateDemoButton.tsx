@@ -17,18 +17,34 @@ export default function CreateDemoButton() {
     setLoading(true);
     setError(null);
     try {
-      const slug = `demo-${Math.floor(Date.now() / 1000)}`;
+      const timestamp = Math.floor(Date.now() / 1000);
+      const slug = `demo-${timestamp}`;
+      const email = `admin@${slug}.com`;
+      const password = "password123";
       
-      // 1. Create Tenant
-      const tenantRes = await fetch("/api/admin/tenants", {
+      // 1. Register Admin & Tenant
+      const registerRes = await fetch("/api/admin/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: "Demo Restaurant", slug }),
+        body: JSON.stringify({ 
+          name: "Demo Admin", 
+          email, 
+          password, 
+          restaurantName: "Demo Restaurant" 
+        }),
       });
-      if (!tenantRes.ok) throw new Error("Failed to create tenant");
-      const tenant = await tenantRes.json() as any;
+      if (!registerRes.ok) throw new Error("Failed to register demo admin");
+      const { tenant } = await registerRes.json() as any;
 
-      // 2. Create Table
+      // 2. Login to get the cookie
+      const loginRes = await fetch("/api/admin/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!loginRes.ok) throw new Error("Failed to login demo admin");
+
+      // 3. Create Table
       const tableRes = await fetch("/api/admin/tables", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -37,7 +53,7 @@ export default function CreateDemoButton() {
       if (!tableRes.ok) throw new Error("Failed to create table");
       const tables = await tableRes.json() as any[];
 
-      // 3. Create Sample Menu Category
+      // 4. Create Sample Menu Category
       const catRes = await fetch("/api/admin/menu/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -45,7 +61,7 @@ export default function CreateDemoButton() {
       });
       const category = await catRes.json() as any;
 
-      // 4. Create Sample Dish
+      // 5. Create Sample Dish
       if (category.id) {
         await fetch("/api/admin/menu/dishes", {
           method: "POST",
@@ -61,7 +77,7 @@ export default function CreateDemoButton() {
       }
 
       setDemoData({
-        slug,
+        slug: tenant.slug,
         tableNumber: tables[0].tableNumber,
         signature: tables[0].qrCodeSignature,
       });

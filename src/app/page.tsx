@@ -1,5 +1,6 @@
 import { Store, QrCode, ChefHat, LayoutDashboard, ArrowRight } from 'lucide-react';
 import CreateDemoButton from '@/components/CreateDemoButton';
+import Link from 'next/link';
 
 export default function HomePage() {
   return (
@@ -74,9 +75,14 @@ export default function HomePage() {
             <Store className="w-5 h-5 text-apple-blue" />
             <span className="font-semibold tracking-tight text-lg">Tangram QR</span>
           </div>
-          <p className="text-sm text-gray-400">
-            Powered by Next.js & Cloudflare D1
-          </p>
+          <div className="flex items-center gap-8">
+            <Link href="/auth/login" className="text-sm font-semibold text-near-black/60 hover:text-apple-blue transition-colors">
+              Admin Sign In
+            </Link>
+            <p className="text-sm text-gray-400">
+              Powered by Next.js & Cloudflare D1
+            </p>
+          </div>
         </div>
       </footer>
     </main>

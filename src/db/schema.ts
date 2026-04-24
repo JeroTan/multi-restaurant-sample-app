@@ -39,6 +39,17 @@ export const dishes = sqliteTable("dishes", {
   isDeleted: integer("is_deleted", { mode: "boolean" }).default(false),
 });
 
+// Admins
+export const admins = sqliteTable("admins", {
+  id: text("id").primaryKey(),
+  tenantId: text("tenant_id").references(() => tenants.id).notNull(),
+  name: text("name").notNull(),
+  email: text("email").unique().notNull(),
+  passwordHash: text("password_hash").notNull(),
+  resetToken: text("reset_token"),
+  resetExpires: integer("reset_expires"), // timestamp
+});
+
 // Orders
 export const orders = sqliteTable("orders", {
   id: text("id").primaryKey(),
