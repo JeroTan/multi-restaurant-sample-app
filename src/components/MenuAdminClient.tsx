@@ -9,6 +9,9 @@ export default function MenuAdminClient({ tenantId }: { tenantId: string }) {
   // Forms
   const [catName, setCatName] = useState("");
   const [dishData, setDishData] = useState({ categoryId: "", name: "", price: "", description: "" });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [isUploading, setIsUploading] = useState(false);
 
   const fetchMenu = async () => {
     try {
@@ -25,7 +28,23 @@ export default function MenuAdminClient({ tenantId }: { tenantId: string }) {
     }
   };
 
-  useEffect(() => { fetchMenu(); }, [tenantId]);
+  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setSelectedFile(file);
+    
+    // Cleanup old preview if it exists
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  useEffect(() => { 
+    fetchMenu(); 
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [tenantId, previewUrl]);
 
   const createCategory = async (e: any) => {
     e.preventDefault();
@@ -40,6 +59,30 @@ export default function MenuAdminClient({ tenantId }: { tenantId: string }) {
 
   const createDish = async (e: any) => {
     e.preventDefault();
+    let finalImageUrl = "";
+    setIsUploading(true);
+
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('tenantId', tenantId);
+
+      try {
+        const res = await fetch('/api/admin/menu/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json() as any;
+        if (data.url) {
+          finalImageUrl = data.url;
+        }
+      } catch (err) {
+        console.error('Upload failed:', err);
+        setIsUploading(false);
+        return;
+      }
+    }
+
     await fetch(`/api/admin/menu/dishes`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -48,10 +91,16 @@ export default function MenuAdminClient({ tenantId }: { tenantId: string }) {
         categoryId: dishData.categoryId, 
         name: dishData.name, 
         price: parseFloat(dishData.price), 
-        description: dishData.description 
+        description: dishData.description,
+        imageUrl: finalImageUrl
       })
     });
+    
     setDishData({ ...dishData, name: "", price: "", description: "" });
+    setSelectedFile(null);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl("");
+    setIsUploading(false);
     fetchMenu();
   };
 
@@ -120,8 +169,25 @@ export default function MenuAdminClient({ tenantId }: { tenantId: string }) {
                   className="w-full bg-pale-gray border border-graphite-border rounded-md pl-8 pr-4 py-2.5 text-[15px] outline-none" 
                 />
               </div>
-              <button type="submit" className="w-full bg-apple-blue text-pure-white rounded-md py-3 font-semibold text-[15px] shadow-lg shadow-apple-blue/20 active:scale-95 transition-all">
-                Create Dish
+
+              <div className="space-y-2">
+                <label className="text-[12px] font-semibold text-near-black/40 uppercase tracking-widest px-1">Dish Image</label>
+                <div className="flex items-center gap-4">
+                  {previewUrl && (
+                    <img src={previewUrl} alt="Preview" className="w-12 h-12 rounded-md object-cover border border-graphite-border" />
+                  )}
+                  <input 
+                    type="file" 
+                    onChange={handleFileSelection}
+                    accept="image/*"
+                    className="text-[12px] text-near-black/60 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-[12px] file:font-semibold file:bg-pale-gray file:text-apple-blue hover:file:bg-apple-blue/10 cursor-pointer"
+                  />
+                </div>
+                {isUploading && <p className="text-[10px] text-apple-blue animate-pulse">Processing asset and saving dish...</p>}
+              </div>
+
+              <button type="submit" disabled={isUploading} className="w-full bg-apple-blue text-pure-white rounded-md py-3 font-semibold text-[15px] shadow-lg shadow-apple-blue/20 active:scale-95 transition-all disabled:opacity-50">
+                {isUploading ? 'Saving...' : 'Create Dish'}
               </button>
             </form>
           </div>
@@ -140,12 +206,17 @@ export default function MenuAdminClient({ tenantId }: { tenantId: string }) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {menu.dishes.filter((d: any) => d.categoryId === cat.id).map((dish: any) => (
                   <div key={dish.id} className="bg-pure-white p-6 rounded-lg border border-graphite-border shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h4 className="text-[17px] font-semibold text-near-black mb-1">{dish.name}</h4>
-                        <p className="text-[14px] text-near-black/40 line-clamp-1">{dish.description}</p>
+                    <div className="flex gap-4 mb-4">
+                      {dish.imageUrl && (
+                        <img src={dish.imageUrl} alt={dish.name} className="w-16 h-16 rounded-md object-cover shrink-0 border border-pale-gray" />
+                      )}
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="text-[17px] font-semibold text-near-black mb-1">{dish.name}</h4>
+                          <span className="text-[15px] font-bold text-apple-blue">${dish.price.toFixed(2)}</span>
+                        </div>
+                        <p className="text-[14px] text-near-black/40 line-clamp-2">{dish.description}</p>
                       </div>
-                      <span className="text-[15px] font-bold text-apple-blue">${dish.price.toFixed(2)}</span>
                     </div>
                     <div className="h-px bg-pale-gray w-full" />
                   </div>

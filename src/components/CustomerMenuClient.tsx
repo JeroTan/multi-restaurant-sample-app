@@ -165,18 +165,27 @@ export default function CustomerMenuClient({ tenant, table, signature, categorie
             <h2 className="text-[28px] font-semibold text-near-black mb-8 border-b border-graphite-border pb-4">{cat.name}</h2>
             <div className="space-y-6">
               {dishes.filter((d: any) => d.categoryId === cat.id).map((dish: any) => (
-                <div key={dish.id} className="bg-pure-white p-6 rounded-lg border border-graphite-border shadow-sm flex justify-between items-center group active:scale-[0.98] transition-all">
-                  <div className="flex-1 pr-6">
-                    <h3 className="text-[19px] font-semibold text-near-black mb-1">{dish.name}</h3>
-                    <p className="text-[15px] text-near-black/50 mb-4 line-clamp-2 leading-relaxed">{dish.description}</p>
-                    <p className="text-[17px] font-bold text-near-black">${dish.price.toFixed(2)}</p>
+                <div key={dish.id} className="bg-pure-white p-6 rounded-lg border border-graphite-border shadow-sm flex flex-col sm:flex-row gap-6 group active:scale-[0.98] transition-all">
+                  {dish.imageUrl && (
+                    <div className="w-full sm:w-32 h-48 sm:h-32 rounded-lg overflow-hidden border border-graphite-border shrink-0">
+                      <img src={dish.imageUrl} alt={dish.name} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-[19px] font-semibold text-near-black mb-1">{dish.name}</h3>
+                      <p className="text-[15px] text-near-black/50 mb-4 line-clamp-2 leading-relaxed">{dish.description}</p>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <p className="text-[17px] font-bold text-near-black">${dish.price.toFixed(2)}</p>
+                      <button 
+                        onClick={() => addToCart(dish)} 
+                        className="w-11 h-11 bg-pale-gray text-apple-blue rounded-full flex items-center justify-center hover:bg-apple-blue hover:text-pure-white transition-all shadow-sm"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
-                  <button 
-                    onClick={() => addToCart(dish)} 
-                    className="w-11 h-11 bg-pale-gray text-apple-blue rounded-full flex items-center justify-center hover:bg-apple-blue hover:text-pure-white transition-all shadow-sm"
-                  >
-                    <Plus className="w-5 h-5" />
-                  </button>
                 </div>
               ))}
             </div>

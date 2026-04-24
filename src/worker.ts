@@ -15,7 +15,26 @@ export default {
   async fetch(request: Request, env: any, ctx: any) {
     const url = new URL(request.url);
 
-    // 1. Intercept WebSocket Upgrade requests for Real-Time Order Tracking
+    // 1. Intercept Media requests for R2 storage
+    if (url.pathname.startsWith("/media/")) {
+      const key = url.pathname.replace("/media/", "");
+      const object = await env.ORDERING_SYSTEM_BUCKET.get(key);
+
+      if (!object) {
+        return new Response("Object Not Found", { status: 404 });
+      }
+
+      const headers = new Headers();
+      object.writeHttpMetadata(headers);
+      headers.set("etag", object.httpEtag);
+      headers.set("Cache-Control", "public, max-age=31536000, immutable");
+
+      return new Response(object.body, {
+        headers,
+      });
+    }
+
+    // 2. Intercept WebSocket Upgrade requests for Real-Time Order Tracking
     // We now route by tenantId to create a unified restaurant hub
     if (url.pathname === "/ws") {
       const tenantId = url.searchParams.get("tenantId");

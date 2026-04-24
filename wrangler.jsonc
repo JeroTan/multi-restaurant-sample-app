@@ -30,6 +30,13 @@
       "service": "multi-restaurant-qr-ordering",
     },
   ],
+  "r2_buckets": [
+    {
+      "binding": "ORDERING_SYSTEM_BUCKET",
+      "bucket_name": "multi-ordering-system-r2",
+      "remote": true
+    }
+  ],
   "d1_databases": [
     {
       "binding": "DB",

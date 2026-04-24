@@ -2,6 +2,7 @@
 
 interface Env {
 	ORDER_SYNC: DurableObjectNamespace<import("./src/worker").OrderSync>;
+	ORDERING_SYSTEM_BUCKET: R2Bucket;
 	DB: D1Database;
 	WORKER_SELF_REFERENCE: Fetcher;
 	ASSETS: Fetcher;
