@@ -33,7 +33,6 @@ const DraggableOrderCard = React.memo(({ order, updateStatus }: { order: Order; 
   });
 
   const style = {
-    // Optimization: Remove transform if the card is the one being dragged (handled by DragOverlay)
     transform: isDragging ? undefined : CSS.Translate.toString(transform),
     opacity: isDragging ? 0.3 : 1,
   };
@@ -58,13 +57,13 @@ const DraggableOrderCard = React.memo(({ order, updateStatus }: { order: Order; 
       style={style}
       {...listeners}
       {...attributes}
-      className={`bg-white p-4 rounded-xl shadow-sm border border-gray-100 group transition-all duration-200 cursor-grab active:cursor-grabbing hover:shadow-md ${isDragging ? 'z-50 ring-2 ring-blue-500' : ''}`}
+      className={`bg-pure-white p-5 rounded-lg border border-graphite-border shadow-sm group transition-all duration-200 cursor-grab active:cursor-grabbing hover:shadow-md ${isDragging ? 'z-50 ring-2 ring-apple-blue' : ''}`}
     >
       <div className="flex justify-between mb-2">
-        <span className="font-bold text-gray-900">Table {order.tableId.substring(0, 4)}...</span>
-        <span className="font-semibold text-blue-600">${order.totalPrice.toFixed(2)}</span>
+        <span className="font-semibold text-near-black">Table {order.tableId.substring(0, 4)}...</span>
+        <span className="font-bold text-apple-blue">${order.totalPrice.toFixed(2)}</span>
       </div>
-      <p className="text-xs text-gray-400 mb-4">{new Date(order.createdAt).toLocaleTimeString()}</p>
+      <p className="text-[12px] text-gray-400 mb-4 font-mono">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
       
       {nextStatus && (
         <button
@@ -73,10 +72,10 @@ const DraggableOrderCard = React.memo(({ order, updateStatus }: { order: Order; 
             e.stopPropagation();
             updateStatus(order.id, nextStatus);
           }}
-          className={`w-full font-medium py-2 rounded-lg transition-colors ${
-            order.status === 'pending' ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' :
-            order.status === 'preparing' ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' :
-            'bg-green-100 text-green-700 hover:bg-green-200'
+          className={`w-full text-[14px] font-semibold py-2.5 rounded-md transition-all active:scale-95 ${
+            order.status === 'pending' ? 'bg-apple-blue text-pure-white' :
+            order.status === 'preparing' ? 'bg-graphite-a text-pure-white border border-graphite-b' :
+            'bg-pale-gray text-near-black border border-graphite-border'
           }`}
         >
           {buttonLabels[order.status]}
@@ -109,14 +108,14 @@ const StatusColumn = React.memo(({
   return (
     <div
       ref={setNodeRef}
-      className={`bg-gray-50 p-4 rounded-2xl border transition-colors duration-200 ${
-        isOver ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100' : 'border-gray-200'
+      className={`bg-pale-gray p-6 rounded-lg border transition-all duration-200 ${
+        isOver ? 'bg-apple-blue/5 border-apple-blue ring-4 ring-apple-blue/10' : 'border-graphite-border'
       }`}
     >
-      <h2 className={`font-bold text-gray-700 mb-4 flex items-center gap-2`}>
-        <Icon className={`w-5 h-5 ${colorClass}`} /> {title}
+      <h2 className={`font-semibold text-[14px] uppercase tracking-wider text-near-black/50 mb-6 flex items-center gap-2`}>
+        <Icon className={`w-4 h-4 ${colorClass}`} /> {title}
       </h2>
-      <div className="space-y-4 min-h-[100px]">
+      <div className="space-y-4 min-h-[150px]">
         {children}
       </div>
     </div>
@@ -130,7 +129,6 @@ export default function OrdersClient({ tenantId }: { tenantId: string }) {
   const [loading, setLoading] = useState(true);
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
 
-  // Optimization: Stable sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -207,7 +205,6 @@ export default function OrdersClient({ tenantId }: { tenantId: string }) {
     }
   }, [updateStatus]);
 
-  // Optimization: Memoized lists
   const pendingOrders = useMemo(() => orders.filter(o => o.status === 'pending'), [orders]);
   const preparingOrders = useMemo(() => orders.filter(o => o.status === 'preparing'), [orders]);
   const servedOrders = useMemo(() => orders.filter(o => o.status === 'served'), [orders]);
@@ -219,35 +216,38 @@ export default function OrdersClient({ tenantId }: { tenantId: string }) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div>
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold text-gray-900">Live Orders</h1>
-            <div className="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100 animate-pulse">
-              <Zap className="w-3.5 h-3.5 fill-current" />
-              <span className="text-xs font-bold uppercase tracking-wider">Live Sync</span>
+      <div className="max-w-[1400px] mx-auto">
+        <div className="flex justify-between items-end mb-12">
+          <div>
+            <h1 className="text-[40px] font-semibold text-near-black tracking-tight leading-none mb-4">Live Orders</h1>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-apple-blue animate-pulse" />
+              <span className="text-[12px] font-semibold uppercase tracking-widest text-near-black/40">Synchronized Engine</span>
             </div>
           </div>
-          <button onClick={fetchOrders} className="p-2 text-gray-500 hover:text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center gap-2">
+          <button 
+            onClick={fetchOrders} 
+            className="flex items-center gap-2 px-4 py-2.5 bg-pure-white border border-graphite-border rounded-md text-[14px] font-semibold text-near-black hover:bg-pale-gray transition-colors"
+          >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <StatusColumn id="pending" title="Pending" icon={Clock} colorClass="text-orange-500">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <StatusColumn id="pending" title="Pending" icon={Clock} colorClass="text-apple-blue">
             {pendingOrders.map(order => (
               <DraggableOrderCard key={order.id} order={order} updateStatus={updateStatus} />
             ))}
           </StatusColumn>
 
-          <StatusColumn id="preparing" title="Preparing" icon={RefreshCw} colorClass="text-blue-500">
+          <StatusColumn id="preparing" title="Preparing" icon={RefreshCw} colorClass="text-apple-blue">
             {preparingOrders.map(order => (
               <DraggableOrderCard key={order.id} order={order} updateStatus={updateStatus} />
             ))}
           </StatusColumn>
 
-          <StatusColumn id="served" title="Served" icon={CheckCircle2} colorClass="text-green-500">
+          <StatusColumn id="served" title="Served" icon={CheckCircle2} colorClass="text-apple-blue">
             {servedOrders.map(order => (
               <DraggableOrderCard key={order.id} order={order} updateStatus={updateStatus} />
             ))}
@@ -265,12 +265,12 @@ export default function OrdersClient({ tenantId }: { tenantId: string }) {
         }),
       }}>
         {activeOrder ? (
-          <div className="bg-white p-4 rounded-xl shadow-xl border border-blue-200 scale-105 cursor-grabbing opacity-90">
+          <div className="bg-pure-white p-5 rounded-lg shadow-2xl border border-apple-blue/30 scale-105 cursor-grabbing opacity-90">
              <div className="flex justify-between mb-2">
-              <span className="font-bold text-gray-900">Table {activeOrder.tableId.substring(0, 4)}...</span>
-              <span className="font-semibold text-blue-600">${activeOrder.totalPrice.toFixed(2)}</span>
+              <span className="font-semibold text-near-black">Table {activeOrder.tableId.substring(0, 4)}...</span>
+              <span className="font-bold text-apple-blue">${activeOrder.totalPrice.toFixed(2)}</span>
             </div>
-            <p className="text-xs text-gray-400">{new Date(activeOrder.createdAt).toLocaleTimeString()}</p>
+            <p className="text-[12px] text-gray-400 font-mono">{new Date(activeOrder.createdAt).toLocaleTimeString()}</p>
           </div>
         ) : null}
       </DragOverlay>

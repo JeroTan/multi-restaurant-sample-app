@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Plus, Minus, Trash2, Clock, CheckCircle2, RefreshCw } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Trash2, Clock, CheckCircle2, RefreshCw, ChevronRight } from 'lucide-react';
 
 export default function CustomerMenuClient({ tenant, table, signature, categories, dishes }: any) {
   const [cart, setCart] = useState<any[]>([]);
@@ -26,24 +26,19 @@ export default function CustomerMenuClient({ tenant, table, signature, categorie
   useEffect(() => {
     fetchActiveOrders();
     
-    // WebSocket Setup (Unified Tenant Hub)
+    // WebSocket Setup
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/ws?tenantId=${tenant.id}`;
     let ws = new WebSocket(wsUrl);
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      
-      // Customer only refreshes if:
-      // 1. It's a status update for THEIR table
-      // 2. A new order event (can be ignored or used to confirm their own recent placement)
       if (data.type === 'order-update' && data.tableId === table.id) {
         fetchActiveOrders();
       }
     };
 
     ws.onclose = () => {
-      // Reconnect after 3 seconds if closed
       setTimeout(() => {
         fetchActiveOrders(); 
       }, 3000);
@@ -93,13 +88,13 @@ export default function CustomerMenuClient({ tenant, table, signature, categorie
         setCart([]);
         setIsCartOpen(false);
         setOrderSuccess(true);
-        fetchActiveOrders(); // Immediately refresh tracking
+        fetchActiveOrders();
       } else {
         const error = await res.json() as any;
-        alert('Failed: ' + error.error);
+        console.error('Order failed:', error.error);
       }
     } catch (e) {
-      alert('Network error');
+      console.error('Network error:', e);
     } finally {
       setIsSubmitting(false);
     }
@@ -107,78 +102,79 @@ export default function CustomerMenuClient({ tenant, table, signature, categorie
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'preparing': return 'text-blue-600 bg-blue-50 border-blue-100';
+      case 'preparing': return 'text-apple-blue bg-apple-blue/5 border-apple-blue/10';
       case 'served': return 'text-green-600 bg-green-50 border-green-100';
-      default: return 'text-orange-600 bg-orange-50 border-orange-100';
+      default: return 'text-near-black/60 bg-pale-gray border-graphite-border';
     }
   };
 
   return (
-    <div className="relative pb-24">
-      {/* Header */}
-      <div className="p-6 bg-white border-b border-gray-100 sticky top-0 z-10">
-        <h1 className="text-2xl font-bold text-gray-900">{tenant.name}</h1>
-        <p className="text-gray-500 font-medium">Table {table.tableNumber}</p>
-      </div>
+    <div className="relative pb-24 bg-pale-gray min-h-screen">
+      {/* Header (Showcase Mode) */}
+      <header className="px-6 pt-12 pb-8 bg-pure-white border-b border-graphite-border">
+        <h1 className="text-[34px] font-semibold text-near-black tracking-tight leading-none mb-2">{tenant.name}</h1>
+        <div className="flex items-center gap-2 text-near-black/50 font-medium">
+          <span>Table {table.tableNumber}</span>
+          <div className="w-1 h-1 rounded-full bg-near-black/20" />
+          <span className="text-apple-blue">Order Live</span>
+        </div>
+      </header>
 
-      {/* Active Orders Section */}
+      {/* Active Orders Section (Transactional) */}
       {activeOrders.length > 0 && (
-        <div className="p-4 bg-gray-50 border-b border-gray-200">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider px-1 flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              Your Active Orders
+        <section className="px-6 py-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-[14px] font-semibold text-near-black uppercase tracking-widest flex items-center gap-2">
+              <Clock className="w-4 h-4 text-apple-blue" />
+              Live Progress
             </h2>
-            <span className="text-[10px] text-blue-500 font-medium bg-blue-50 px-2 py-0.5 rounded-full animate-pulse border border-blue-100">
-              Auto-updating
-            </span>
           </div>
-          <p className="text-[11px] text-gray-400 px-1 mb-3 italic">
-            We will update the status of your order automatically.
-          </p>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {activeOrders.map(order => (
-              <div key={order.id} className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-                <div className="flex justify-between items-center mb-2">
-                  <span className={`text-xs font-bold px-2 py-1 rounded-full border ${getStatusColor(order.status)}`}>
-                    {order.status.toUpperCase()}
+              <div key={order.id} className="retail-card p-5">
+                <div className="flex justify-between items-center mb-4">
+                  <span className={`text-[12px] font-bold px-3 py-1 rounded-full border ${getStatusColor(order.status)} uppercase tracking-wider`}>
+                    {order.status}
                   </span>
-                  <span className="text-xs text-gray-400">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span className="text-[12px] text-near-black/40 font-mono">#{order.id.substring(0, 4)}</span>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   {order.items.map((item: any) => (
-                    <div key={item.id} className="flex justify-between text-sm">
-                      <span className="text-gray-700">{item.quantity}x {dishes.find((d: any) => d.id === item.dishId)?.name || 'Dish'}</span>
+                    <div key={item.id} className="flex justify-between text-[15px] text-near-black/80">
+                      <span>{item.quantity}x {dishes.find((d: any) => d.id === item.dishId)?.name || 'Dish'}</span>
                     </div>
                   ))}
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Menu List */}
-      <div className="p-4 space-y-8">
+      {/* Menu List (Showcase Content) */}
+      <div className="px-6 py-12 space-y-16">
         {orderSuccess && (
-          <div className="bg-green-50 border border-green-200 p-4 rounded-xl text-center mb-6">
-            <p className="text-green-800 font-bold">Order received! Tracking it above.</p>
-            <button onClick={() => setOrderSuccess(false)} className="text-xs text-green-600 underline mt-1">Dismiss</button>
+          <div className="bg-apple-blue text-pure-white p-4 rounded-lg shadow-lg flex justify-between items-center animate-in slide-in-from-top duration-500">
+            <span className="font-semibold">Order placed successfully.</span>
+            <button onClick={() => setOrderSuccess(false)} className="opacity-70 hover:opacity-100">Dismiss</button>
           </div>
         )}
 
         {categories.sort((a: any, b: any) => a.order - b.order).map((cat: any) => (
           <div key={cat.id}>
-            <h2 className="text-xl font-bold text-gray-800 mb-4">{cat.name}</h2>
-            <div className="space-y-4">
+            <h2 className="text-[28px] font-semibold text-near-black mb-8 border-b border-graphite-border pb-4">{cat.name}</h2>
+            <div className="space-y-6">
               {dishes.filter((d: any) => d.categoryId === cat.id).map((dish: any) => (
-                <div key={dish.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
-                  <div className="flex-1 pr-4">
-                    <h3 className="font-bold text-gray-900">{dish.name}</h3>
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">{dish.description}</p>
-                    <p className="font-semibold text-gray-900 mt-2">${dish.price.toFixed(2)}</p>
+                <div key={dish.id} className="bg-pure-white p-6 rounded-lg border border-graphite-border shadow-sm flex justify-between items-center group active:scale-[0.98] transition-all">
+                  <div className="flex-1 pr-6">
+                    <h3 className="text-[19px] font-semibold text-near-black mb-1">{dish.name}</h3>
+                    <p className="text-[15px] text-near-black/50 mb-4 line-clamp-2 leading-relaxed">{dish.description}</p>
+                    <p className="text-[17px] font-bold text-near-black">${dish.price.toFixed(2)}</p>
                   </div>
-                  <button onClick={() => addToCart(dish)} className="p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors">
+                  <button 
+                    onClick={() => addToCart(dish)} 
+                    className="w-11 h-11 bg-pale-gray text-apple-blue rounded-full flex items-center justify-center hover:bg-apple-blue hover:text-pure-white transition-all shadow-sm"
+                  >
                     <Plus className="w-5 h-5" />
                   </button>
                 </div>
@@ -188,45 +184,52 @@ export default function CustomerMenuClient({ tenant, table, signature, categorie
         ))}
       </div>
 
-      {/* Floating Cart Button */}
+      {/* Floating Action Button (Apple Capsule) */}
       {cart.length > 0 && (
-        <div className="fixed bottom-4 left-0 right-0 max-w-md mx-auto px-4 z-20">
+        <div className="fixed bottom-8 left-0 right-0 px-6 z-30">
           <button 
             onClick={() => setIsCartOpen(true)}
-            className="w-full bg-blue-600 text-white p-4 rounded-xl font-bold shadow-lg shadow-blue-600/30 flex justify-between items-center"
+            className="w-full bg-apple-blue text-pure-white p-5 rounded-xl font-bold shadow-2xl shadow-apple-blue/30 flex justify-between items-center active:scale-95 transition-all"
           >
-            <div className="flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5" />
-              <span>{cart.reduce((s, i) => s + i.quantity, 0)} Items</span>
+            <div className="flex items-center gap-3">
+              <div className="bg-pure-white/20 px-2.5 py-1 rounded-md text-[13px]">
+                {cart.reduce((s, i) => s + i.quantity, 0)}
+              </div>
+              <span className="text-[17px]">Review Order</span>
             </div>
-            <span>View Cart • ${totalPrice.toFixed(2)}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[17px]">${totalPrice.toFixed(2)}</span>
+              <ChevronRight className="w-5 h-5 opacity-50" />
+            </div>
           </button>
         </div>
       )}
 
-      {/* Cart Modal */}
+      {/* Bottom Sheet Cart */}
       {isCartOpen && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsCartOpen(false)} />
-          <div className="bg-white max-w-md w-full mx-auto rounded-t-2xl p-6 relative flex flex-col max-h-[80vh]">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Your Order</h2>
-              <button onClick={() => setIsCartOpen(false)} className="text-gray-400 hover:text-gray-600">Close</button>
+          <div className="absolute inset-0 bg-near-black/60 backdrop-blur-md" onClick={() => setIsCartOpen(false)} />
+          <div className="bg-pure-white w-full rounded-t-[24px] p-8 relative flex flex-col max-h-[85vh] animate-in slide-in-from-bottom duration-300">
+            <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-8" />
+            
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-[28px] font-semibold text-near-black">Your Order</h2>
+              <button onClick={() => setIsCartOpen(false)} className="text-apple-blue font-semibold">Done</button>
             </div>
             
-            <div className="flex-1 overflow-auto space-y-4 mb-6">
+            <div className="flex-1 overflow-auto space-y-6 mb-8 pr-2">
               {cart.map(item => (
                 <div key={item.dishId} className="flex justify-between items-center">
                   <div>
-                    <h3 className="font-medium text-gray-900">{item.name}</h3>
-                    <p className="text-gray-500">${(item.price * item.quantity).toFixed(2)}</p>
+                    <h3 className="text-[17px] font-semibold text-near-black mb-1">{item.name}</h3>
+                    <p className="text-[15px] text-near-black/40">${(item.price * item.quantity).toFixed(2)}</p>
                   </div>
-                  <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-1 border border-gray-200">
-                    <button onClick={() => updateQuantity(item.dishId, -1)} className="p-1 text-gray-600">
+                  <div className="flex items-center gap-4 bg-pale-gray rounded-md p-1.5 border border-graphite-border">
+                    <button onClick={() => updateQuantity(item.dishId, -1)} className="p-1.5 text-near-black/60 hover:text-apple-blue">
                       {item.quantity === 1 ? <Trash2 className="w-4 h-4 text-red-500" /> : <Minus className="w-4 h-4" />}
                     </button>
-                    <span className="font-medium w-4 text-center">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.dishId, 1)} className="p-1 text-gray-600">
+                    <span className="font-bold w-5 text-center text-[15px]">{item.quantity}</span>
+                    <button onClick={() => updateQuantity(item.dishId, 1)} className="p-1.5 text-near-black/60 hover:text-apple-blue">
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
@@ -237,9 +240,9 @@ export default function CustomerMenuClient({ tenant, table, signature, categorie
             <button 
               disabled={isSubmitting}
               onClick={placeOrder}
-              className="w-full bg-blue-600 text-white p-4 rounded-xl font-bold shadow-lg shadow-blue-600/30 disabled:opacity-70"
+              className="w-full bg-apple-blue text-pure-white py-5 rounded-lg font-bold text-[17px] shadow-lg disabled:opacity-50 active:scale-95 transition-all"
             >
-              {isSubmitting ? 'Placing Order...' : `Place Order • ${totalPrice.toFixed(2)}`}
+              {isSubmitting ? 'Processing...' : `Confirm Order • $${totalPrice.toFixed(2)}`}
             </button>
           </div>
         </div>

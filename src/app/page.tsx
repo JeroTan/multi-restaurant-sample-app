@@ -1,76 +1,84 @@
-import { Store, QrCode, ChefHat, LayoutDashboard } from 'lucide-react';
+import { Store, QrCode, ChefHat, LayoutDashboard, ArrowRight } from 'lucide-react';
 import CreateDemoButton from '@/components/CreateDemoButton';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center justify-center p-6 sm:p-12">
-      <div className="max-w-5xl w-full">
-        {/* Hero Section */}
-        <div className="text-center mb-12 mt-8">
-          <div className="inline-flex items-center justify-center p-5 bg-white rounded-2xl shadow-sm mb-6 border border-gray-100">
-            <Store className="w-12 h-12 text-blue-600" />
+    <main className="min-h-screen">
+      {/* Chapter 1: The Vision (Showcase Black) */}
+      <section className="section-black py-24 px-6 flex flex-col items-center justify-center min-h-[80vh]">
+        <div className="max-w-4xl w-full text-center">
+          <div className="inline-flex items-center justify-center p-3 bg-graphite-a rounded-md mb-8 border border-graphite-b">
+            <Store className="w-8 h-8 text-lum-blue" />
           </div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
-            Multi QR Ordering System
+          <h1 className="text-5xl sm:text-7xl font-semibold leading-tight mb-6 tracking-tight">
+            Precision Dining <br />
+            <span className="text-gray-400">for the Modern Era.</span>
           </h1>
-          <p className="text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto mb-8">
-            The multi-tenant edge-native platform for modern restaurants. Manage menus, process live orders, and delight customers with instant QR-based dining.
+          <p className="text-xl sm:text-2xl text-gray-400 max-w-2xl mx-auto mb-12 font-light">
+            The edge-native platform for restaurants that demand speed, elegance, and zero friction.
           </p>
           
-          {/* Interactive Demo Orchestrator */}
-          <CreateDemoButton />
-        </div>
-
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
-          {/* Customer Experience */}
-          <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200/60 relative overflow-hidden flex flex-col">
-            <div className="absolute top-0 right-0 p-4 opacity-5">
-              <QrCode className="w-32 h-32" />
-            </div>
-            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-6 border border-blue-100 shrink-0">
-              <QrCode className="w-6 h-6 text-blue-600" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-3">Customer Interface</h2>
-            <p className="text-gray-500 text-sm leading-relaxed flex-1">
-              Scan a table's QR code to instantly access the mobile-first menu, customize orders, and checkout without installing an app.
-            </p>
-          </div>
-
-          {/* Admin Live Orders */}
-          <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200/60 relative overflow-hidden flex flex-col">
-            <div className="absolute top-0 right-0 p-4 opacity-5">
-              <LayoutDashboard className="w-32 h-32" />
-            </div>
-            <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mb-6 border border-orange-100 shrink-0">
-              <LayoutDashboard className="w-6 h-6 text-orange-600" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-3">Live Order Board</h2>
-            <p className="text-gray-500 text-sm leading-relaxed flex-1">
-              Real-time Kanban dashboard for staff to receive incoming orders, transition preparation states, and mark items as served.
-            </p>
-          </div>
-
-          {/* Menu Management */}
-          <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200/60 relative overflow-hidden flex flex-col">
-            <div className="absolute top-0 right-0 p-4 opacity-5">
-              <ChefHat className="w-32 h-32" />
-            </div>
-            <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-6 border border-green-100 shrink-0">
-              <ChefHat className="w-6 h-6 text-green-600" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-3">Menu Management</h2>
-            <p className="text-gray-500 text-sm leading-relaxed flex-1">
-              Powerful dashboard for restaurant owners to organize categories, manage dish availability, and update pricing.
-            </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <CreateDemoButton />
           </div>
         </div>
+      </section>
 
-        {/* Footer/Note */}
-        <div className="mt-16 text-center text-sm text-gray-400">
-          <p>Edge-Native Next.js • Cloudflare D1</p>
+      {/* Chapter 2: The Experience (Showcase Gray) */}
+      <section className="section-gray py-32 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {/* Customer Interface */}
+            <div className="group">
+              <div className="w-14 h-14 bg-pure-white rounded-lg flex items-center justify-center mb-8 shadow-sm border border-graphite-border">
+                <QrCode className="w-6 h-6 text-apple-blue" />
+              </div>
+              <h2 className="text-2xl font-semibold mb-4">Customer Interface</h2>
+              <p className="text-near-black/70 leading-relaxed mb-6">
+                Mobile-first menus that feel like a native app. Instant checkout without downloads.
+              </p>
+              <div className="h-1 w-0 bg-apple-blue transition-all group-hover:w-12" />
+            </div>
+
+            {/* Admin Live Orders */}
+            <div className="group">
+              <div className="w-14 h-14 bg-pure-white rounded-lg flex items-center justify-center mb-8 shadow-sm border border-graphite-border">
+                <LayoutDashboard className="w-6 h-6 text-apple-blue" />
+              </div>
+              <h2 className="text-2xl font-semibold mb-4">Live Order Board</h2>
+              <p className="text-near-black/70 leading-relaxed mb-6">
+                Real-time Kanban synchronization powered by Durable Objects. Zero-latency coordination.
+              </p>
+              <div className="h-1 w-0 bg-apple-blue transition-all group-hover:w-12" />
+            </div>
+
+            {/* Menu Management */}
+            <div className="group">
+              <div className="w-14 h-14 bg-pure-white rounded-lg flex items-center justify-center mb-8 shadow-sm border border-graphite-border">
+                <ChefHat className="w-6 h-6 text-apple-blue" />
+              </div>
+              <h2 className="text-2xl font-semibold mb-4">Menu Engineering</h2>
+              <p className="text-near-black/70 leading-relaxed mb-6">
+                A surgical dashboard for managing categories and dish availability across all tenants.
+              </p>
+              <div className="h-1 w-0 bg-apple-blue transition-all group-hover:w-12" />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-6 bg-pure-white border-t border-pale-gray">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2">
+            <Store className="w-5 h-5 text-apple-blue" />
+            <span className="font-semibold tracking-tight text-lg">Tangram QR</span>
+          </div>
+          <p className="text-sm text-gray-400">
+            Powered by Next.js & Cloudflare D1
+          </p>
+        </div>
+      </footer>
+    </main>
   );
 }

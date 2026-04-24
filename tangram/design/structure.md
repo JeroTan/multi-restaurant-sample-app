@@ -1,22 +1,25 @@
 # Folder Structure
 
-**Source of Truth:** Internal Next.js App Router Patterns + D1 integration logic.
+**Source of Truth:** Internal Next.js Patterns + "Two Gears" Component Strategy.
 
 ## Directory Tree
-
 ```text
 src/
-├── app/                  # Next.js App Router (Pages & API Routes)
-│   ├── (customer)/       # H5 Ordering Interface
-│   ├── (admin)/          # Dashboard for Staff & Admins
-│   └── api/              # Edge API Routes
-├── components/           # UI Design System (Atoms, Molecules, Organisms)
-├── db/                   # D1 Database Layer
-│   ├── schema.ts         # Drizzle ORM Schema definitions
-│   └── migrations/       # SQL Migration files
-├── lib/                  # Utilities (HMAC generators, QR logic)
-└── i18n/                 # next-intl configuration and dictionaries
+├── app/
+│   ├── (customer)/       # H5 Ordering (Editorial Showcase)
+│   ├── (admin)/          # Dashboard (Transactional Retail)
+│   └── api/
+├── components/
+│   ├── showcase/         # Editorial, high-whitespace components
+│   ├── transactional/    # Data-dense, utility-first components
+│   ├── ui/               # Atomic Apple-spec atoms (Buttons, Inputs)
+│   └── layout/           # Section wrappers for Black/Light chaptering
+├── db/
+├── lib/
+└── i18n/
 ```
 
-## Domain Logic
-Data access and business logic (e.g., `createOrder`, `getMenu`) should be isolated within domain-specific service files inside `src/db/` or a `src/features/` directory to keep Edge API routes clean.
+## Strategy
+Components are categorized by their "Gear":
+- **Showcase Components** live in `components/showcase` and prioritize SF-style display typography.
+- **Transactional Components** live in `components/transactional` and prioritize information density.

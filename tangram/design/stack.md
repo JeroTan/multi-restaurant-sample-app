@@ -1,15 +1,22 @@
 # Tech-Stack
 
-**Source of Truth:** User Prompt + `tangram/overview.md` (Next.js + OpenNext)
+**Source of Truth:** User Prompt + `multi-restaurant-design-ui.md`
 
 ## Core Stack
 - **Framework:** Next.js (App Router).
-- **Compute:** Cloudflare Workers via OpenNext (`@opennextjs/cloudflare`).
-- **Database:** Cloudflare D1 (SQLite at the Edge).
-- **ORM / Query Builder:** Drizzle ORM (Optimized for D1 and Edge environments).
-- **Styling:** Tailwind CSS.
+- **Compute:** Cloudflare Workers via OpenNext.
+- **Database:** Cloudflare D1.
+- **ORM:** Drizzle ORM.
+- **Styling:** Tailwind CSS + `next/font/google`.
+
+## Tailwind Configuration Requirements
+- **Fonts:** Map `font-display` to `Inter Tight` and `font-body` to `Inter`.
+- **Letter Spacing:** Custom utilities for Apple-spec tracking (e.g., `tracking-apple-tight: -0.02em`).
+- **Line Heights:** Custom leading values (1.05, 1.08, 1.1).
+- **Colors:** Extend palette with the Neutral Triad and Graphite Series.
 
 ## Supporting Libraries
-- **Internationalization:** `next-intl` (Edge compatible).
-- **QR Code Generation:** `qrcode` (or lightweight edge equivalent).
-- **Data Fetching:** React Query (for staff dashboard polling and caching).
+- **Icons:** Lucide React (Restrained, thin stroke weight).
+- **Internationalization:** `next-intl`.
+- **Data Fetching:** React Query.
+- **D&D:** `@dnd-kit`.
