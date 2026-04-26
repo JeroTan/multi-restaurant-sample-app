@@ -6,7 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "main": "src/worker.ts",
   "assets": {
-    "directory": ".worker-next/assets",
+    "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
   "durable_objects": {

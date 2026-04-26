@@ -7,7 +7,7 @@ import { DurableObject } from "cloudflare:workers";
  * staff (admins) and customers.
  */
 export class OrderSync extends DurableObject {
-  constructor(state: any, env: any) {
+  constructor(state: DurableObjectState, env: Env) {
     super(state, env);
   }
 

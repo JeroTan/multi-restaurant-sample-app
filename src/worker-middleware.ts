@@ -34,12 +34,12 @@ builder
 // 2. Auth Pages (Redirect if already logged in)
 builder
   .path(['/auth/*'])
-  .do(async (request, next) => {
+  .do(async (request, next, env) => {
     console.log(`[Worker Middleware] Checking Auth Page: ${new URL(request.url).pathname}`);
     const token = getCookie(request, 'admin_token');
     
     if (token) {
-      const secret = process.env.JWT_SECRET || 'fallback-secret';
+      const secret = (env?.JWT_SECRET) || process.env.JWT_SECRET || 'fallback-secret';
       const { data: payload } = await jwtDecrypt<{ tenantSlug: string }>({ token, secretKey: secret });
       
       if (payload) {
@@ -61,7 +61,7 @@ builder
     '/api/admin/tables', '/api/admin/tables/*',
     '/api/admin/tenants', '/api/admin/tenants/*'
   ])
-  .do(async (request, next) => {
+  .do(async (request, next, env) => {
     const url = new URL(request.url);
     console.log(`[Worker Middleware] Securing Admin API: ${url.pathname}`);
     
@@ -71,7 +71,7 @@ builder
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
     }
 
-    const secret = process.env.JWT_SECRET || 'fallback-secret';
+    const secret = (env?.JWT_SECRET) || process.env.JWT_SECRET || 'fallback-secret';
     const { data: payload, error } = await jwtDecrypt<{ adminId: string; tenantId: string; tenantSlug: string; }>({ token, secretKey: secret });
 
     if (error || !payload) {
@@ -89,7 +89,7 @@ builder
     '*/menu',   '*/menu/*',
     '*/tables', '*/tables/*'
   ])
-  .do(async (request, next) => {
+  .do(async (request, next, env) => {
     const url = new URL(request.url);
     const pathname = url.pathname;
     console.log(`[Worker Middleware] Securing Admin Page: ${pathname}`);
@@ -100,7 +100,7 @@ builder
       return Response.redirect(new URL('/auth/login', request.url).toString(), 302);
     }
 
-    const secret = process.env.JWT_SECRET || 'fallback-secret';
+    const secret = (env?.JWT_SECRET) || process.env.JWT_SECRET || 'fallback-secret';
     const { data: payload, error } = await jwtDecrypt<{ adminId: string; tenantId: string; tenantSlug: string; }>({ token, secretKey: secret });
 
     if (error || !payload) {

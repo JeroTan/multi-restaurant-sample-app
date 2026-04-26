@@ -5,7 +5,7 @@
  */
 
 // @ts-ignore - The Next.js bundle will be located here after build
-import { default as handler } from "../.worker-next/index.mjs";
+import { default as handler } from "../.open-next/worker.js";
 import { OrderSync } from "./db/order-sync-do";
 import { runDailyCleanup } from "./lib/tasks";
 import { builder as middlewareBuilder } from "./worker-middleware";
@@ -14,11 +14,11 @@ import { builder as middlewareBuilder } from "./worker-middleware";
 export { OrderSync };
 
 export default {
-  async fetch(request: Request, env: any, ctx: any) {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     const url = new URL(request.url);
 
     // 0. Run Custom Edge Middleware
-    const middlewareResponse = await middlewareBuilder.run(request);
+    const middlewareResponse = await middlewareBuilder.run(request, env);
     if (middlewareResponse) {
       return middlewareResponse; // The middleware decided to intercept/block/redirect
     }
@@ -60,7 +60,7 @@ export default {
     return handler.fetch(request, env, ctx);
   },
 
-  async scheduled(event: any, env: any, ctx: any) {
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     ctx.waitUntil(runDailyCleanup(env));
   },
   

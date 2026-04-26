@@ -40,7 +40,7 @@ export class MiddlewareBuilder {
     this.routes.push(config);
   }
 
-  async run(request: Request): Promise<Response | null> {
+  async run(request: Request, env?: Env): Promise<Response | null> {
     const next: NextFunction = () => {};
     const url = new URL(request.url);
     const pathname = url.pathname;
@@ -67,7 +67,7 @@ export class MiddlewareBuilder {
       console.log(`[Middleware Builder] Matched route block #${i} with pattern: "${matchedPattern}"`);
 
       for (const handler of route.handlers) {
-        const result = await handler(request, next);
+        const result = await handler(request, next, env);
 
         if (result instanceof Response) {
           console.log(`[Middleware Builder] Handler returned a Response. Aborting chain.`);

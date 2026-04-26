@@ -1,15 +1,15 @@
 "use client";
+import { use } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, UtensilsCrossed, QrCode } from 'lucide-react';
 
-export default function AdminLayout({
-  children,
-  params,
-}: {
+export default function AdminLayout(props: {
   children: React.ReactNode;
-  params: { tenantSlug: string };
+  params: Promise<{ tenantSlug: string }>;
 }) {
+  const params = use(props.params);
+  const children = props.children;
   const pathname = usePathname();
   const slug = params.tenantSlug;
 

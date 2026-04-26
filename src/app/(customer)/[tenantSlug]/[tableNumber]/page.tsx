@@ -4,13 +4,12 @@ import { eq, and } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import CustomerMenuClient from '@/components/CustomerMenuClient';
 
-export default async function CustomerPage({
-  params,
-  searchParams,
-}: {
-  params: { tenantSlug: string; tableNumber: string };
-  searchParams: { sig?: string };
+export default async function CustomerPage(props: {
+  params: Promise<{ tenantSlug: string; tableNumber: string }>;
+  searchParams: Promise<{ sig?: string }>;
 }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   const db = getDb();
   
   // Sanitize input: tableNumber in URL might be encoded (e.g., Patio%201)

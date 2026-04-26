@@ -1,4 +1,4 @@
-export async function runDailyCleanup(env: any) {
+export async function runDailyCleanup(env: Env) {
   // Daily cleanup of orphaned soft-deleted dishes
   // Logic: Delete from dishes where is_deleted = 1 AND not in order_items
   try {

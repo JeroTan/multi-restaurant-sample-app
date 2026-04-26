@@ -3,8 +3,9 @@ import { getDb } from '@/db';
 import { orders } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 
-export async function PATCH(request: Request, { params }: { params: { orderId: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ orderId: string }> }) {
   try {
+    const params = await props.params;
     const db = getDb();
     const body = await request.json() as any;
     const { tenantId, status } = body;

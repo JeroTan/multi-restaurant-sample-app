@@ -4,7 +4,8 @@ import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import OrdersClient from '@/components/OrdersClient';
 
-export default async function AdminOrdersPage({ params }: { params: { tenantSlug: string } }) {
+export default async function AdminOrdersPage(props: { params: Promise<{ tenantSlug: string }> }) {
+  const params = await props.params;
   const db = getDb();
   const [tenant] = await db.select().from(tenants).where(eq(tenants.slug, params.tenantSlug));
   if (!tenant) return notFound();

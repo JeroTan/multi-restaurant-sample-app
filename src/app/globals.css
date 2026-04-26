@@ -33,12 +33,11 @@
   --font-inter-tight: var(--font-inter-tight);
 }
 
+/* Custom Base Layer */
 @layer base {
   body {
-    background-color: var(--color-pure-white);
-    color: var(--color-near-black);
+    @apply bg-pure-white text-near-black antialiased;
     font-family: var(--font-inter), sans-serif;
-    -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -47,6 +46,7 @@
   }
 }
 
+/* Custom Components Layer */
 @layer components {
   /* Showcase Mode Styles */
   .section-black {
@@ -65,4 +65,9 @@
   .retail-card {
     @apply bg-pure-white rounded-lg border border-graphite-border shadow-sm transition-shadow hover:shadow-md;
   }
+}
+
+/* Test utility to verify CSS is working */
+@utility test-tw-active {
+  @apply bg-green-500 text-white p-4 fixed bottom-4 right-4 z-[9999];
 }

@@ -4,7 +4,8 @@ export type MiddlewareResult = Response | void;
 
 export type MiddlewareHandler = (
   req: Request,
-  next: NextFunction
+  next: NextFunction,
+  env?: Env
 ) => Promise<MiddlewareResult> | MiddlewareResult;
 
 export interface RouteConfig {

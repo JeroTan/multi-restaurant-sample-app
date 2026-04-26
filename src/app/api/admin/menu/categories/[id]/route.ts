@@ -5,9 +5,10 @@ import { eq, and } from 'drizzle-orm';
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params;
     const id = params.id;
     const body = await request.json() as any;
     const { tenantId, ...updateData } = body;
@@ -35,9 +36,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params;
     const id = params.id;
     const { searchParams } = new URL(request.url);
     const tenantId = searchParams.get('tenantId');
