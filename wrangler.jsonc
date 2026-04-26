@@ -2,8 +2,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "multi-restaurant-qr-ordering",
   "account_id": "8e6c0cd85435131ccf9936cc03cb62e5",
-  "compatibility_date": "2024-09-23",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_date": "2026-04-21",
+  "compatibility_flags": ["nodejs_compat", "nodejs_compat_populate_process_env"],
   "main": "src/worker.ts",
   "assets": {
     "directory": ".open-next/assets",

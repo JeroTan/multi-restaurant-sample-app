@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/db';
 import { orders } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
+import { getEnv } from '@/lib/cloudflare';
 
 export async function PATCH(request: Request, props: { params: Promise<{ orderId: string }> }) {
   try {
@@ -25,13 +26,11 @@ export async function PATCH(request: Request, props: { params: Promise<{ orderId
 
     // Real-Time Push: Notify Durable Object
     try {
-      // In Cloudflare Workers, we can access bindings via process.env in Next.js (OpenNext)
-      // or directly via global environment in the custom wrapper.
-      const env = (process.env as unknown as Env);
-      if ((env as any).ORDER_SYNC) {
+      const env = getEnv();
+      if (env.ORDER_SYNC) {
         // Now routing to a single Tenant Hub instance
-        const id = (env as any).ORDER_SYNC.idFromName(tenantId);
-        const obj = (env as any).ORDER_SYNC.get(id);
+        const id = env.ORDER_SYNC.idFromName(tenantId);
+        const obj = env.ORDER_SYNC.get(id);
         
         // Internal DO call to broadcast the change
         await obj.fetch(new URL("http://localhost/notify"), {

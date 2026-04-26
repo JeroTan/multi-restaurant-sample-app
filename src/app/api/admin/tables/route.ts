@@ -3,6 +3,7 @@ import { getDb } from '@/db';
 import { tables } from '@/db/schema';
 import { signTableUrl } from '@/lib/utils';
 import { eq, asc } from 'drizzle-orm';
+import { getEnv } from '@/lib/cloudflare';
 
 export async function GET(request: Request) {
   try {
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'tenantId and tableNumbers array are required' }, { status: 400 });
     }
 
-    const secret = process.env.JWT_SECRET || 'fallback-secret';
+    const secret = getEnv().JWT_SECRET || 'fallback-secret';
     const newTables = [];
     
     for (const tableNumber of tableNumbers) {

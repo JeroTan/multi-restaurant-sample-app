@@ -3,6 +3,7 @@ import { getDb } from '@/db';
 import { orders, orderItems } from '@/db/schema';
 import { signTableUrl } from '@/lib/utils';
 import { eq, and, ne } from 'drizzle-orm';
+import { getEnv } from '@/lib/cloudflare';
 
 export async function GET(request: Request) {
   try {
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
     }
 
     // Security: Validate HMAC Signature
-    const secret = process.env.JWT_SECRET || 'fallback-secret';
+    const secret = getEnv().JWT_SECRET || 'fallback-secret';
     const expectedSignature = await signTableUrl(tenantId, tableNumber, secret);
     
     if (signature !== expectedSignature) {
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
     }
 
     // Security: Validate HMAC Signature
-    const secret = process.env.JWT_SECRET || 'fallback-secret';
+    const secret = getEnv().JWT_SECRET || 'fallback-secret';
     const expectedSignature = await signTableUrl(tenantId, tableNumber, secret);
     
     if (signature !== expectedSignature) {
@@ -88,10 +89,10 @@ export async function POST(request: Request) {
 
     // Real-Time Push: Notify Tenant Hub of New Order
     try {
-      const env = (process.env as unknown as Env);
-      if ((env as any).ORDER_SYNC) {
-        const id = (env as any).ORDER_SYNC.idFromName(tenantId);
-        const obj = (env as any).ORDER_SYNC.get(id);
+      const env = getEnv();
+      if (env.ORDER_SYNC) {
+        const id = env.ORDER_SYNC.idFromName(tenantId);
+        const obj = env.ORDER_SYNC.get(id);
         
         await obj.fetch(new URL("http://localhost/notify"), {
           method: "POST",

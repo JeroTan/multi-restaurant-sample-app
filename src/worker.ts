@@ -17,7 +17,7 @@ export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     const url = new URL(request.url);
 
-    // 0. Run Custom Edge Middleware
+    // 0. Run Custom Edge Middleware (Bypassing Next.js 16 Node-only Proxy)
     const middlewareResponse = await middlewareBuilder.run(request, env);
     if (middlewareResponse) {
       return middlewareResponse; // The middleware decided to intercept/block/redirect

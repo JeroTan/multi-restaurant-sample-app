@@ -4,6 +4,7 @@ import { admins, tenants } from '@/db/schema';
 import { verifyHash } from '@/lib/crypto/hash';
 import { jwtEncrypt } from '@/lib/crypto/jwt';
 import { eq } from 'drizzle-orm';
+import { getEnv } from '@/lib/cloudflare';
 
 export async function POST(request: Request) {
   try {
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
     const [tenant] = await db.select().from(tenants).where(eq(tenants.id, admin.tenantId));
 
     // 4. Generate JWT
-    const secret = process.env.JWT_SECRET || 'fallback-secret';
+    const secret = getEnv().JWT_SECRET || 'fallback-secret';
     const { data: token, error: jwtError } = await jwtEncrypt({
       payload: { 
         adminId: admin.id, 
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
 
     response.cookies.set('admin_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: true, // Always true in OpenNext/Production
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 7 // 7 days

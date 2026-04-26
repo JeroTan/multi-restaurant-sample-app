@@ -1,6 +1,12 @@
 import { MiddlewareBuilder } from '@/lib/middleware/builder';
 import { jwtDecrypt } from '@/lib/crypto/jwt';
+import { getEnv } from '@/lib/cloudflare';
 
+/**
+ * Next.js 16 Proxy Layer
+ * Ported from custom worker-middleware to align with official framework standards.
+ * Note: We maintain Edge runtime compatibility for Cloudflare Worker deployment.
+ */
 export const builder = new MiddlewareBuilder();
 
 function getCookie(request: Request, name: string) {
@@ -27,7 +33,7 @@ builder
     '/api/admin/auth/*' // Explicitly skip auth APIs
   ])
   .do((request, next) => {
-    console.log(`[Worker Middleware] Bypassing auth check for public route: ${new URL(request.url).pathname}`);
+    console.log(`[Proxy] Bypassing auth check for public route: ${new URL(request.url).pathname}`);
     return next();
   });
 
@@ -35,15 +41,15 @@ builder
 builder
   .path(['/auth/*'])
   .do(async (request, next, env) => {
-    console.log(`[Worker Middleware] Checking Auth Page: ${new URL(request.url).pathname}`);
+    console.log(`[Proxy] Checking Auth Page: ${new URL(request.url).pathname}`);
     const token = getCookie(request, 'admin_token');
     
     if (token) {
-      const secret = (env?.JWT_SECRET) || process.env.JWT_SECRET || 'fallback-secret';
+      const secret = env?.JWT_SECRET || 'fallback-secret';
       const { data: payload } = await jwtDecrypt<{ tenantSlug: string }>({ token, secretKey: secret });
       
       if (payload) {
-        console.log(`[Worker Middleware] User already authenticated. Redirecting to dashboard.`);
+        console.log(`[Proxy] User already authenticated. Redirecting to dashboard.`);
         return Response.redirect(new URL(`/${payload.tenantSlug}/orders`, request.url).toString(), 302);
       }
     }
@@ -53,7 +59,6 @@ builder
   });
 
 // 3. Secure Admin APIs
-// We explicitly define the secure APIs to avoid accidentally catching /api/admin/auth/*
 builder
   .path([
     '/api/admin/menu/*',
@@ -63,19 +68,19 @@ builder
   ])
   .do(async (request, next, env) => {
     const url = new URL(request.url);
-    console.log(`[Worker Middleware] Securing Admin API: ${url.pathname}`);
+    console.log(`[Proxy] Securing Admin API: ${url.pathname}`);
     
     const token = getCookie(request, 'admin_token');
     if (!token) {
-      console.log(`[Worker Middleware] Blocked: No 'admin_token' cookie found.`);
+      console.log(`[Proxy] Blocked: No 'admin_token' cookie found.`);
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
     }
 
-    const secret = (env?.JWT_SECRET) || process.env.JWT_SECRET || 'fallback-secret';
+    const secret = env?.JWT_SECRET || 'fallback-secret';
     const { data: payload, error } = await jwtDecrypt<{ adminId: string; tenantId: string; tenantSlug: string; }>({ token, secretKey: secret });
 
     if (error || !payload) {
-      console.log(`[Worker Middleware] Blocked: Invalid or expired token. Error: ${error}`);
+      console.log(`[Proxy] Blocked: Invalid or expired token. Error: ${error}`);
       return new Response(JSON.stringify({ error: 'Invalid or expired session' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
     }
 
@@ -92,19 +97,19 @@ builder
   .do(async (request, next, env) => {
     const url = new URL(request.url);
     const pathname = url.pathname;
-    console.log(`[Worker Middleware] Securing Admin Page: ${pathname}`);
+    console.log(`[Proxy] Securing Admin Page: ${pathname}`);
 
     const token = getCookie(request, 'admin_token');
     if (!token) {
-      console.log(`[Worker Middleware] Blocked: No 'admin_token' cookie found.`);
+      console.log(`[Proxy] Blocked: No 'admin_token' cookie found.`);
       return Response.redirect(new URL('/auth/login', request.url).toString(), 302);
     }
 
-    const secret = (env?.JWT_SECRET) || process.env.JWT_SECRET || 'fallback-secret';
+    const secret = env?.JWT_SECRET || 'fallback-secret';
     const { data: payload, error } = await jwtDecrypt<{ adminId: string; tenantId: string; tenantSlug: string; }>({ token, secretKey: secret });
 
     if (error || !payload) {
-       console.log(`[Worker Middleware] Blocked: Invalid or expired token. Error: ${error}`);
+       console.log(`[Proxy] Blocked: Invalid or expired token. Error: ${error}`);
        return Response.redirect(new URL('/auth/login', request.url).toString(), 302);
     }
 
@@ -112,10 +117,19 @@ builder
     if (pathParts.length > 0) {
       const requestedSlug = pathParts[0];
       if (requestedSlug !== payload.tenantSlug && !['api', 'auth'].includes(requestedSlug)) {
-        console.log(`[Worker Middleware] Blocked: Cross-tenant access denied. Redirecting to correct tenant dashboard.`);
+        console.log(`[Proxy] Blocked: Cross-tenant access denied. Redirecting to correct tenant dashboard.`);
         return Response.redirect(new URL(`/${payload.tenantSlug}/orders`, request.url).toString(), 302);
       }
     }
 
     return next(); // Passed Page check
   });
+
+/**
+ * Standard Next.js 16 Proxy function.
+ * Note: Cloudflare Workers (via OpenNext) still require the manual call in src/worker.ts
+ * to guarantee execution before standard routing logic.
+ */
+export async function proxy(request: Request, env?: Env): Promise<Response | null> {
+    return builder.run(request, env);
+}

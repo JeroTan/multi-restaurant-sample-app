@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
+import { getEnv } from '@/lib/cloudflare';
 
 export async function POST(request: Request) {
   try {
-    // In OpenNext/Cloudflare, we access the env via process.env
-    const bucket = (process.env as any).ORDERING_SYSTEM_BUCKET;
-    
+    // In OpenNext/Cloudflare, we access the env via getEnv utility
+    const bucket = getEnv().ORDERING_SYSTEM_BUCKET;
+
     if (!bucket) {
-      return NextResponse.json({ error: 'R2 Bucket binding missing' }, { status: 500 });
+      return NextResponse.json({ error: 'R2 bucket not found' }, { status: 500 });
     }
 
     const formData = await request.formData();

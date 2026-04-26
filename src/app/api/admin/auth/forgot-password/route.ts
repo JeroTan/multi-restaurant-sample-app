@@ -3,6 +3,8 @@ import { getDb } from '@/db';
 import { admins } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { Resend } from 'resend';
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { getEnv } from '@/lib/cloudflare';
 
 export async function POST(request: Request) {
   try {
@@ -31,7 +33,7 @@ export async function POST(request: Request) {
       .where(eq(admins.id, admin.id));
 
     // 4. Send Email via Resend
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    const resend = new Resend(getEnv().RESEND_API_KEY);
     const origin = new URL(request.url).origin;
     const resetLink = `${origin}/auth/reset-password?token=${resetToken}`;
 
