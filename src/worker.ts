@@ -8,6 +8,7 @@
 import { default as handler } from "../.worker-next/index.mjs";
 import { OrderSync } from "./db/order-sync-do";
 import { runDailyCleanup } from "./lib/tasks";
+import { builder as middlewareBuilder } from "./worker-middleware";
 
 // Durable Object class must be a named export of the worker entry point
 export { OrderSync };
@@ -15,6 +16,12 @@ export { OrderSync };
 export default {
   async fetch(request: Request, env: any, ctx: any) {
     const url = new URL(request.url);
+
+    // 0. Run Custom Edge Middleware
+    const middlewareResponse = await middlewareBuilder.run(request);
+    if (middlewareResponse) {
+      return middlewareResponse; // The middleware decided to intercept/block/redirect
+    }
 
     // 1. Intercept Media requests for R2 storage
     if (url.pathname.startsWith("/media/")) {
@@ -49,6 +56,7 @@ export default {
     }
 
     // 2. Delegate all other traffic to the OpenNext Next.js handler
+    console.log(`[Custom Worker] Delegating ${url.pathname} to OpenNext handler`);
     return handler.fetch(request, env, ctx);
   },
 
