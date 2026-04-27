@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from 'react';
 import { Plus, Tag, ChevronRight, LayoutGrid, Coffee, Edit3, Trash2, X, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   DndContext,
   DragOverlay,

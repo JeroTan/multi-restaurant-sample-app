@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Clock, CheckCircle2, RefreshCw, Zap } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   DndContext,
   DragOverlay,
@@ -196,15 +197,27 @@ export default function OrdersClient({ tenantId }: { tenantId: string }) {
   }, [tenantId, fetchOrders]);
 
   const updateStatus = useCallback(async (orderId: string, status: string) => {
+    let previousOrders: Order[] | null = null;
+
+    setOrders(prev => {
+      previousOrders = prev;
+      return prev.map(o => o.id === orderId ? { ...o, status } : o);
+    });
+
     try {
-      await fetch(`/api/admin/orders/${orderId}`, {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tenantId, status })
       });
+      if (!res.ok) throw new Error('API Error');
       fetchOrders();
     } catch (e) {
       console.error(e);
+      if (previousOrders) {
+        setOrders(previousOrders);
+      }
+      toast.error('Failed to update order status. Please try again.');
     }
   }, [tenantId, fetchOrders]);
 
