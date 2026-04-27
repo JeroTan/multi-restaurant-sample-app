@@ -356,7 +356,7 @@ export default function MenuAdminClient({ tenantId }: { tenantId: string }) {
       onDragEnd={handleDragEnd}
     >
       <div className="max-w-[1200px] mx-auto">
-        <h1 className="text-[40px] font-semibold text-near-black tracking-tight mb-12">Menu Engineering</h1>
+        <h1 className="text-[40px] font-semibold text-near-black tracking-tight mb-12">Menu Management</h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Left Col: Management Controls */}

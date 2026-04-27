@@ -16,7 +16,7 @@ export default function HomePage() {
             <span className="text-gray-400">for the Modern Era.</span>
           </h1>
           <p className="text-xl sm:text-2xl text-gray-400 max-w-2xl mx-auto mb-12 font-light">
-            The edge-native platform for restaurants that demand speed, elegance, and zero friction.
+            The lightning-fast platform for restaurants that demand speed, elegance, and zero friction.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
@@ -29,26 +29,26 @@ export default function HomePage() {
       <section className="section-gray py-32 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {/* Customer Interface */}
+            {/* Digital Menu */}
             <div className="group">
               <div className="w-14 h-14 bg-pure-white rounded-lg flex items-center justify-center mb-8 shadow-sm border border-graphite-border">
                 <QrCode className="w-6 h-6 text-apple-blue" />
               </div>
-              <h2 className="text-2xl font-semibold mb-4">Customer Interface</h2>
+              <h2 className="text-2xl font-semibold mb-4">Digital Menu</h2>
               <p className="text-near-black/70 leading-relaxed mb-6">
                 Mobile-first menus that feel like a native app. Instant checkout without downloads.
               </p>
               <div className="h-1 w-0 bg-apple-blue transition-all group-hover:w-12" />
             </div>
 
-            {/* Admin Live Orders */}
+            {/* Admin Kitchen Display */}
             <div className="group">
               <div className="w-14 h-14 bg-pure-white rounded-lg flex items-center justify-center mb-8 shadow-sm border border-graphite-border">
                 <LayoutDashboard className="w-6 h-6 text-apple-blue" />
               </div>
-              <h2 className="text-2xl font-semibold mb-4">Live Order Board</h2>
+              <h2 className="text-2xl font-semibold mb-4">Kitchen Display</h2>
               <p className="text-near-black/70 leading-relaxed mb-6">
-                Real-time Kanban synchronization powered by Durable Objects. Zero-latency coordination.
+                Real-time order synchronization. Seamless kitchen coordination.
               </p>
               <div className="h-1 w-0 bg-apple-blue transition-all group-hover:w-12" />
             </div>
@@ -58,9 +58,9 @@ export default function HomePage() {
               <div className="w-14 h-14 bg-pure-white rounded-lg flex items-center justify-center mb-8 shadow-sm border border-graphite-border">
                 <ChefHat className="w-6 h-6 text-apple-blue" />
               </div>
-              <h2 className="text-2xl font-semibold mb-4">Menu Engineering</h2>
+              <h2 className="text-2xl font-semibold mb-4">Menu Management</h2>
               <p className="text-near-black/70 leading-relaxed mb-6">
-                A surgical dashboard for managing categories and dish availability across all tenants.
+                An intuitive dashboard for managing categories and dish availability across all tenants.
               </p>
               <div className="h-1 w-0 bg-apple-blue transition-all group-hover:w-12" />
             </div>
