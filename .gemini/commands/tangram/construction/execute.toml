@@ -6,14 +6,14 @@ Your goal is to transform the plan.md of an active feature into functional, veri
 
 **Hierarchy of Truth**
 1. **The User Prompt**: Real-time instructions override everything.
-2. **The Feature Plan**: Task summaries in features/ID_name/plan.md.
+2. **The Feature Plan**: Task summaries in tangram/features/ID_name/plan.md.
 3. **Design Pillars**: Rules in tangram/design/*.md.
 4. **Historical Patterns**: Logic and naming conventions in tangram/archive/**.
 
 **Steps**
 
 1. **Identify Target Feature**
-   Scan features/ for active workspaces. If multiple exist and none were specified in the trigger, use **AskUserQuestion** to let the user select.
+   Scan tangram/features/ for active workspaces. If multiple exist and none were specified in the trigger, use **AskUserQuestion** to let the user select.
 
 2. **Context Subagent Protocol (The Brain Sync)**
    Invoke a **Context Subagent** to scan the following and provide a "Minimal Relevant Context" brief:
@@ -32,8 +32,8 @@ Your goal is to transform the plan.md of an active feature into functional, veri
 4. **The Execution Loop**
    Based on the chosen pace, for each task:
    - **Code Generation**: Modify or create files. Follow the **Hierarchy of Truth** strictly.
-   - **Documentation**: Update the features/ID_name/summary.md with a log of changes.
-   - **Checkbox Sync**: Mark the task as complete [x] in features/ID_name/plan.md.
+   - **Documentation**: Update the tangram/features/ID_name/summary.md with a log of changes.
+   - **Checkbox Sync**: Mark the task as complete [x] in tangram/features/ID_name/plan.md.
    - **Pattern Alignment**: Ensure the code matches the "signature" found in the archive/.
 
 5. **Task Verification**

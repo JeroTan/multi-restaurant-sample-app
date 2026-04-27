@@ -16,7 +16,7 @@ Your goal is to perform surgical repairs on the implementation within an active 
 **Steps**
 
 1. **Context & Workspace Sync**
-   - Identify the active feature folder in features/. 
+   - Identify the active feature folder in tangram/features/. 
    - Parse the user's input to map the issue back to a specific task in plan.md (e.g., identifying that the "registration input field" corresponds to Task 1.2).
 
 2. **Initialize Sequential Debug Log (debug_XXX.md)**
@@ -44,7 +44,7 @@ Your goal is to perform surgical repairs on the implementation within an active 
    Once approved:
    - Apply the fixes to the code.
    - Mark the checklist items as complete [x] in debug_XXX.md.
-   - Update features/ID_name/summary.md noting that a fix was applied via debug_XXX.md.
+   - Update tangram/features/ID_name/summary.md noting that a fix was applied via debug_XXX.md.
 
 **Output On Success**
 
