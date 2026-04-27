@@ -5,7 +5,7 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'QR Ordering System',
+  title: 'QResto - QR Ordering System',
   description: 'Multi-tenant QR code ordering platform',
 };
 

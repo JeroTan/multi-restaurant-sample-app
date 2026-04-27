@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     const resetLink = `${origin}/auth/reset-password?token=${resetToken}`;
 
     const { error: emailError } = await resend.emails.send({
-      from: 'Tangram QR <noreply@tangramqr.com>',
+      from: 'QResto QR <noreply@tangramqr.com>',
       to: [email],
       subject: 'Reset your password',
       html: `

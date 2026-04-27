@@ -71,7 +71,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-pale-gray flex flex-col items-center py-20 px-6">
       <div className="w-full max-w-[450px]">
         <div className="text-center mb-12">
-          <h1 className="text-[40px] font-semibold tracking-tight text-near-black mb-3">Join Tangram</h1>
+          <h1 className="text-[40px] font-semibold tracking-tight text-near-black mb-3">Join QResto</h1>
           <p className="text-near-black/40 font-medium text-[17px]">Start your precision-engineered ordering platform.</p>
         </div>
 
@@ -164,7 +164,7 @@ export default function RegisterPage() {
         </div>
 
         <p className="text-center mt-8 text-[15px] text-near-black/40 font-medium">
-          Already using Tangram?{" "}
+          Already using QResto?{" "}
           <Link href="/auth/login" className="text-apple-blue font-semibold hover:underline">
             Sign In
           </Link>

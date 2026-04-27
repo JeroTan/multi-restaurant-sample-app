@@ -45,7 +45,7 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center p-3 bg-absolute-black rounded-xl mb-6 shadow-xl">
             <Store className="w-8 h-8 text-pure-white" />
           </div>
-          <h1 className="text-[32px] font-semibold tracking-tight text-near-black mb-2">Sign in to Tangram</h1>
+          <h1 className="text-[32px] font-semibold tracking-tight text-near-black mb-2">Sign in to QResto</h1>
           <p className="text-near-black/40 font-medium">Enter your credentials to manage your restaurant.</p>
         </div>
 

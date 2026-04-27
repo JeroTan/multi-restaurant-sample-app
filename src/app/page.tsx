@@ -73,7 +73,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
             <Store className="w-5 h-5 text-apple-blue" />
-            <span className="font-semibold tracking-tight text-lg">Tangram QR</span>
+            <span className="font-semibold tracking-tight text-lg">QResto</span>
           </div>
           <div className="flex items-center gap-8">
             <Link href="/auth/login" className="text-sm font-semibold text-near-black/60 hover:text-apple-blue transition-colors">
