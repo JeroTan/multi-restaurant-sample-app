@@ -68,8 +68,15 @@ builder
   ])
   .do(async (request, next, env) => {
     const url = new URL(request.url);
-    console.log(`[Proxy] Securing Admin API: ${url.pathname}`);
+    const pathname = url.pathname;
+    console.log(`[Proxy] Securing Admin API: ${pathname}`);
     
+    // Explicitly ignore customer APIs if they somehow matched (though patterns should be distinct)
+    if (pathname.startsWith('/api/customer')) {
+      console.log(`[Proxy] Skipping Admin check for customer API: ${pathname}`);
+      return next();
+    }
+
     const token = getCookie(request, 'admin_token');
     if (!token) {
       console.log(`[Proxy] Blocked: No 'admin_token' cookie found.`);
@@ -90,14 +97,24 @@ builder
 // 4. Secure Admin Pages
 builder
   .path([
-    '*/orders', '*/orders/*',
-    '*/menu',   '*/menu/*',
-    '*/tables', '*/tables/*'
+    '/*/orders', '/*/orders/*',
+    '/*/menu',   '/*/menu/*',
+    '/*/tables', '/*/tables/*'
   ])
   .do(async (request, next, env) => {
     const url = new URL(request.url);
     const pathname = url.pathname;
     console.log(`[Proxy] Securing Admin Page: ${pathname}`);
+
+    // EXTREMELY IMPORTANT: Skip authentication for customer-facing routes and APIs
+    // wildcards like */orders can match /api/customer/orders
+    const pathParts = pathname.split('/').filter(Boolean);
+    const firstSegment = pathParts[0];
+
+    if (firstSegment === 'api' || firstSegment === 'auth' || firstSegment === 'customer') {
+      console.log(`[Proxy] Bypassing Admin Page check for system/customer route: ${pathname}`);
+      return next();
+    }
 
     const token = getCookie(request, 'admin_token');
     if (!token) {
@@ -113,10 +130,9 @@ builder
        return Response.redirect(new URL('/auth/login', request.url).toString(), 302);
     }
 
-    const pathParts = pathname.split('/').filter(Boolean);
     if (pathParts.length > 0) {
       const requestedSlug = pathParts[0];
-      if (requestedSlug !== payload.tenantSlug && !['api', 'auth'].includes(requestedSlug)) {
+      if (requestedSlug !== payload.tenantSlug) {
         console.log(`[Proxy] Blocked: Cross-tenant access denied. Redirecting to correct tenant dashboard.`);
         return Response.redirect(new URL(`/${payload.tenantSlug}/orders`, request.url).toString(), 302);
       }

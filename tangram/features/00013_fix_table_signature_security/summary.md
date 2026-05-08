@@ -27,3 +27,8 @@ Resolve the "Invalid table signature" error and associated Websocket live status
 ## Debugging Log (debug_001.md)
 - Added verbose diagnostic logging to `src/app/api/customer/orders/route.ts` and `src/worker.ts` to capture data strings, masked secrets, and signature comparisons.
 - Refined `signTableSignature` to trim inputs, preventing common whitespace mismatches.
+
+## Debugging Log (debug_002.md)
+- Fixed an issue where customer API routes were being intercepted by admin authentication middleware due to broad wildcard patterns (e.g., `*/orders`).
+- Added explicit guards in `src/worker-middleware.ts` to bypass admin session checks for any path starting with `/api/customer` or common customer-facing system routes.
+- Tightened Admin Page patterns from `*/orders` to `/*/orders` for better specificity.
