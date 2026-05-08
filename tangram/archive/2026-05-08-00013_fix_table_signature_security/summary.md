@@ -32,3 +32,10 @@ Resolve the "Invalid table signature" error and associated Websocket live status
 - Fixed an issue where customer API routes were being intercepted by admin authentication middleware due to broad wildcard patterns (e.g., `*/orders`).
 - Added explicit guards in `src/worker-middleware.ts` to bypass admin session checks for any path starting with `/api/customer` or common customer-facing system routes.
 - Tightened Admin Page patterns from `*/orders` to `/*/orders` for better specificity.
+
+## Final Execution Log
+- **What was Built**: A robust and secure table signature system centralized in `src/lib/crypto/signature.ts`. The implementation enforces environment secret presence and provides diagnostic logging for remote debugging. Customer-facing routes are explicitly isolated from admin authentication checks in the middleware proxy layer.
+- **Challenges & Fixes**: 
+  - Encountered signature mismatches in remote environments, resolved via `debug_001.md` by adding verbose logging and trimming input whitespace.
+  - Encountered unintended 401/403 errors on customer APIs, resolved via `debug_002.md` by refining middleware matching logic and adding path-based bypass guards.
+- **Design Adherence**: Strictly followed the **Security Pillar** (HMAC integrity + authenticated Websockets) and the **Stack Pillar** (Cloudflare Worker compatible Web Crypto).
