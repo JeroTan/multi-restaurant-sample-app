@@ -11,24 +11,29 @@ You are the Tangram Build AI executing the plan command.
 
 **Steps**
 
-1. **Context Subagent Protocol (The Brain Scan)**
+1. **Identify Mode & Workspace**
+   - **Creation**: Assign next ID (e.g., 0000X_name) and initialize tangram/features/ID_name/.
+   - **Modification**: If ID/name exists, read current plan.md and prepare to apply "Deltas."
+   - **Author Sync**: Check/Create tangram/author.md.
+
+2. **Pre-execution Dynamic State Check (Safety Net)**
+   - Verify the existence and non-emptiness of the 6 Design Pillars (e.g., `tangram/design/structure.md`, `tangram/design/stack.md`).
+   - If any pillar is missing or empty, **STOP** and instruct the user to complete the design phase before planning.
+   - **Agenda Pivot**: Check if `tangram/features/ID_name/agenda.md` exists. If missing or incomplete, inform the user: "No agenda found. Let's validate the requirements first!" Seamlessly pivot into the `/tangram:agenda` workflow to interrogate the user and generate the agenda. Only resume this planning workflow once the agenda is validated and approved.
+
+3. **Context Subagent Protocol (The Brain Scan)**
    Before drafting, you MUST invoke a **Context Subagent** to:
    - **Scan Studies**: Ensure alignment with Feasibility, Goals, and Requirements.
    - **Scan Design**: Extract constraints from the 6 Pillars (Stack, UI, Security, etc.).
    - **Scan Archive**: Identify historical patterns and naming conventions to ensure consistency.
 
-2. **Identify Mode & Workspace**
-   - **Creation**: Assign next ID (e.g., 0000X_name) and initialize tangram/features/ID_name/.
-   - **Modification**: If ID/name exists, read current plan.md and prepare to apply "Deltas."
-   - **Author Sync**: Check/Create tangram/author.md.
-
-3. **Initialize Summary (summary.md)**
+4. **Initialize Summary (summary.md)**
    Create or update tangram/features/ID_name/summary.md. Document:
    - **Intent**: The core "Why" behind the feature.
    - **Scope**: Boundaries of the implementation.
    - **Strategic Fit**: Connection to goal.md and business value.
 
-4. **Develop the Technical Roadmap (plan.md)**
+5. **Develop the Technical Roadmap (plan.md)**
    Generate tangram/features/ID_name/plan.md. You MUST use the following **Headings** and structure:
 
    ## I. Architectural Alignment
@@ -51,13 +56,13 @@ You are the Tangram Build AI executing the plan command.
    | :--- | :--- | :--- |
    | [Req ID] | [Unit/Manual/Integration] | [Expected Outcome] |
 
-5. **Approval Loop**
+6. **Approval Loop**
    Present the full plan (or Diff). Highlight how it maintains consistency with the archive/.
    Ask: "Does this roadmap align with our project history, or should we refine the task summaries? (If you are ready to build, run /tangram:execute)"
    **STOP**: Wait for user response.
 
-6. **Finalize and Write**
-   Write/Overwrite the files in tangram/features/ID_name/. 
+7. **Finalize and Write**
+   Write/Overwrite the files in tangram/features/ID_name/.  
 
 **Output On Success**
 

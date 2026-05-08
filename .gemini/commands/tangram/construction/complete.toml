@@ -52,7 +52,7 @@ Your goal is to perform the ceremonial archiving of a completed feature, ensurin
 > - Debug sessions (if any) resolved
 > - Final Execution Log written to summary.md
 > 
-> **Status:** Workspace cleared. Ready for the next /tangram:plan.
+> **Next Action:** Workspace cleared. Run `/tangram:agenda` to validate the requirements for your next feature.
 
 **Guardrails**
 - **Safety First**: Never use rm -rf. Always use mv to preserve the history.

@@ -1,71 +1,78 @@
 description = "Initialize the project environment and folder hierarchy based on the approved Design pillars and templated setup knowledge."
 
 prompt = '''
-Initialize the project environment and generate the base file structure using a design-led, template-first approach.
+Initialize the project environment and generate the base file structure using a tool-first, streamlined approach.
 
 **Input**: Triggered by `/tangram:setup`. 
 
 **Hierarchy of Truth**
 1. **The User Prompt**: Direct instructions in the current message take absolute precedence.
 2. **User Project Knowledge**: Templated setup rules and boilerplate standards found in `.gemini/knowledge/setup/**`.
-3. **Internal AI Knowledge**: General defaults (fallback only).
+3. **Design Pillars**: Core requirements in `tangram/design/structure.md` and `tangram/design/stack.md`.
 
 **Steps**
 
-1. **Deep Knowledge Scan & Synthesis**
-   - Read `tangram/design/structure.md` and `tangram/design/stack.md`.
-   - **Mandatory Scan**: Check `.gemini/knowledge/setup/**` for existing knowledge about "templated setups" or "project boilerplates." 
-   - If a template exists (e.g., a standard React/Node structure, internal CI/CD folder tree, or custom boilerplate), use it as the foundational blueprint to streamline the app building.
+1. **Pre-execution Dynamic State Check (Safety Net)**
+   - Read the core technology stack from `tangram/design/stack.md`.
+   - Run system commands to verify required tools based on the stack (e.g., `node -v`, `python --version`, `git status`).
+   - If a required tool is missing, **STOP** and alert the user to install it before proceeding.
+   - Dynamically create essential ignore files (e.g., `.gitignore`, `.dockerignore`, `.eslintignore`) based on the detected tech stack.
 
-2. **Hierarchy Merging**
-   Merge the requirements from the **Design Pillars** with the identified **Setup Templates**. 
-   *Rule:* If the template and the project-specific Design pillars contradict, the **Design Pillar** wins, as it represents the specific decision for this build.
+2. **Tool-First Discovery & Online Research (The "Headstart" Scan)**
+   - Identify the core technology stack from `tangram/design/stack.md`.
+   - **Research Phase**: Search specifically for "Getting Started" CLI commands, official "Headstart" scripts, or "Component Initialization" tools (e.g., `npx create-next-app`, `npm init`, `shadcn-ui init`, `python -m venv`, `cargo init`).
+   - Determine if there is a modern, community-recommended shortcut to automate the environment and foundational folder creation.
 
-3. **Safety Scan (No Blind Overwrites)**
-   Scan the root directory. If folders already exist:
+3. **Deep Knowledge Scan & Synthesis**
+   - Read `tangram/design/structure.md`.
+   - Check `.gemini/knowledge/setup/**` for internal boilerplate standards that must be applied *after* the initial tool-driven setup.
+
+4. **Safety Scan (No Blind Overwrites)**
+   - Scan the root directory. If folders already exist:
    - Use **AskUserQuestion**: "Existing project structure detected. Should I (A) Only add missing folders/files or (B) Perform a clean reset (WARNING: Data loss)?"
-   - Stop and wait for user response.
+   - **STOP**: Wait for user response.
 
-4. **Construction Phase: Folder & Template Execution**
-   - Create the directory hierarchy using the folder names and locations from the **Setup Template**.
-   - Ensure all additions align with the **Structure** pillar.
+5. **Streamlined Execution (CLI-Driven)**
+   - Propose the specific "Getting Started" or "Headstart" command found in Step 1.
+   - Execute the command to generate the foundational environment, configuration files (`package.json`, `requirements.txt`), and base dependencies.
 
-5. **Boilerplate & Config Generation**
-   Generate "Foundation Files" using the specific logic found in `knowledge/setup/**`:
-   - **Standard Configs**: Generate the exact skeletons (e.g., `package.json`, `tsconfig.json`, `Dockerfile`, `requirements.txt`) defined in your templates.
-   - **README.md & .gitignore**: Auto-populate with the template's standard ignore-lists and documentation headers.
-   - **Environment**: Create `.env.example` with standard keys defined in the setup knowledge.
+6. **Manual Orchestration & Augmentation**
+   - Once the standard CLI/Headstart setup is complete, "orchestrate from scratch" any remaining custom folders or files (like the `tangram/` hierarchy) that the automated tools did not create.
+   - Ensure the `tangram/features/` directory is correctly initialized.
 
-6. **Tooling & Environment Check**
-   Verify that the required runtimes (e.g., Node.js, Docker, Python) are installed based on the **Stack** pillar and the **Setup Template** requirements.
+7. **Boilerplate & Config Refinement**
+   - Generate "Foundation Files" using specific logic found in `knowledge/setup/**`:
+   - **Standard Configs**: Merge or update generated configs (e.g., `tsconfig.json`, `Dockerfile`, `.gitignore`) with Tangram-specific rules.
+   - **Environment**: Create `.env.example` with standard keys.
 
-7. **Wait for Approval**
-   Display the resulting directory tree and list the templates applied. Ask: "The project skeleton is ready. Should I finalize the creation of these files and install dependencies?"
-   *Pause and wait for user response.*
+8. **Wait for Approval**
+   - Display the resulting directory tree and list the CLI tools and templates applied. 
+   - Ask: "The project skeleton is ready via [Command Name]. Should I finalize the creation and install any remaining dependencies?"
+   - **STOP**: Wait for user response.
 
-8. **Finalize & Write**
-   Execute the file writes and folder creations.
-
-9. **Dependency Installation**
-   Based on the `stack.md` and generated config files, execute the appropriate package manager commands in the terminal (e.g., `npm install`, `pip install`, `yarn install`, `cargo build`) to ensure all base dependencies are ready to go.
+9. **Finalize & Dependency Sync**
+   - Execute any final file writes.
+   - Run the final package manager commands (e.g., `npm install`, `pip install`, `yarn install`, `cargo build`) to ensure the environment is fully locked and ready.
 
 **Output On Success**
 
 > ## Project Setup Complete
 > 
-> **Template Applied:** <Name of Template from knowledge/setup/** or 'Custom'>
+> **Headstart Command:** <e.g., npx create-next-app / shadcn-ui init>
+> **Templates Applied:** <Name of Template from knowledge/setup/** or 'Custom'>
 > **Target Structure:** Aligned with design/structure.md + Setup Knowledge.
 > 
 > **Initialized Items:**
-> - Directory hierarchy (Streamlined via Templates)
+> - Base skeleton (Streamlined via Online Research & CLI)
+> - Custom Folder Orchestration (Completed)
 > - Standard Boilerplate (.gitignore, README, Configs)
 > - Dependency Skeletons & .env.example
-> - Base dependencies installed successfully
+> - All base dependencies installed successfully
 > 
-> **Next Action:** Your workspace is ready. You can now run `/tangram:plan` to start the first sprint.
+> **Next Action:** Your workspace is ready. Run `/tangram:agenda` to define the requirements for your first feature.
 
 **Guardrails**
-- **Streamlining**: Use the knowledge in `setup/**` to skip repetitive decision-making and automate the "boring" parts of the folder creation.
-- **Traceability**: Always cite the specific template or knowledge file that influenced the project structure.
-- **Strict Loop**: Suggest -> Approve -> Write & Install -> Confirm.
+- **Priority**: Always prefer an official "Getting Started" CLI or "Headstart" script over manual folder creation.
+- **Traceability**: Always cite the specific CLI command or online resource that influenced the structure.
+- **Strict Loop**: Search -> Propose -> Execute Headstart -> Orchestrate Extras -> Confirm.
 '''

@@ -10,7 +10,7 @@ Your goal is to guide the user in generating or updating tangram/overview.md, wh
 
 1. **Check State & Analyze**
    First, check if tangram/overview.md already exists and read its contents.
-   - **If it DOES NOT exist (Creation Mode):** Review the user's input. If the idea is omitted or vague, you MUST ask: "What is the general idea of the app you want to build?"
+   - **If it DOES NOT exist (Creation Mode):** Review the user's input. If the name or the idea is omitted/vague, you MUST ask: "What is the name of the app/project and the general idea of what you want to build?"
    - **If it DOES exist (Update Mode):** Compare the user's new input against the current overview.md. Act as a strategic partner. Acknowledge the shift and ask for their reasoning to ensure the app's vision stays coherent.
      Example: "I see you want to add/remove [Feature]. Our original overview focused on [Original Focus]. What is driving this change? Should we adjust the Target Audience or Vision to reflect this pivot?" Wait for their response before drafting.
 
@@ -26,8 +26,14 @@ Your goal is to guide the user in generating or updating tangram/overview.md, wh
    Once the user approves (or after applying their requested adjustments), write the final content to tangram/overview.md.
    Announce that the file has been successfully created or updated.
 
-5. **Confirm Next Step**
-   Ask the user if they are ready to move on to the next command: /tangram:explore.
+**Output On Success**
+
+> ## Project Definition Complete
+> 
+> **File Created:** tangram/overview.md
+> **Vision:** [App Name] core concept established.
+> 
+> **Next Action:** Run `/tangram:constitution` to establish the non-negotiable laws and principles of your project.
 
 **Draft Template for tangram/overview.md**
 
@@ -43,6 +49,7 @@ Your goal is to guide the user in generating or updating tangram/overview.md, wh
 > [A short summary of what the app will feel like from a user's perspective, focusing on the main problem it solves.]
 
 **Guardrails**
+- **Identity First**: Never proceed with the draft until a name or working title is established.
 - **Strict Loop**: Suggest -> Approve -> Summarize -> Write.
 - **Consultative Tone**: Ensure any updates to the vision make logical sense before overwriting the file.
 '''
