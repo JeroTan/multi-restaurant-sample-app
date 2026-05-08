@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/db';
 import { orders, orderItems } from '@/db/schema';
-import { signTableUrl } from '@/lib/utils';
+import { verifyTableSignature } from '@/lib/crypto/signature';
 import { eq, and, ne } from 'drizzle-orm';
-import { getEnv } from '@/lib/cloudflare';
+import { getEnv, getRequiredSecret } from '@/lib/cloudflare';
 
 export async function GET(request: Request) {
   try {
@@ -18,10 +18,18 @@ export async function GET(request: Request) {
     }
 
     // Security: Validate HMAC Signature
-    const secret = getEnv().JWT_SECRET || 'fallback-secret';
-    const expectedSignature = await signTableUrl(tenantId, tableNumber, secret);
+    const secret = getRequiredSecret('JWT_SECRET');
+    const dataToSign = `${tenantId}:${tableNumber}`;
+    const isValid = await verifyTableSignature(tenantId, tableNumber, signature, secret);
     
-    if (signature !== expectedSignature) {
+    if (!isValid) {
+      const maskedSecret = secret.length > 4 ? `${secret.substring(0, 2)}...${secret.substring(secret.length - 2)}` : '****';
+      console.error(`[Tracking Security] Signature mismatch.`);
+      console.error(`  - Table: ${tableNumber}`);
+      console.error(`  - Tenant: ${tenantId}`);
+      console.error(`  - Data to Sign: "${dataToSign}"`);
+      console.error(`  - Secret (Masked): ${maskedSecret}`);
+      console.error(`  - Received Signature: ${signature}`);
       return NextResponse.json({ error: 'Invalid table signature' }, { status: 403 });
     }
 
@@ -43,6 +51,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(ordersWithItems);
   } catch (error: any) {
+    console.error("[Customer Orders GET] Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -58,11 +67,18 @@ export async function POST(request: Request) {
     }
 
     // Security: Validate HMAC Signature
-    const secret = getEnv().JWT_SECRET || 'fallback-secret';
-    const expectedSignature = await signTableUrl(tenantId, tableNumber, secret);
+    const secret = getRequiredSecret('JWT_SECRET');
+    const dataToSign = `${tenantId}:${tableNumber}`;
+    const isValid = await verifyTableSignature(tenantId, tableNumber, signature, secret);
     
-    if (signature !== expectedSignature) {
-      console.error(`[Order Security] Signature mismatch. Received: ${signature}, Expected: ${expectedSignature} for Table: ${tableNumber}, Tenant: ${tenantId}`);
+    if (!isValid) {
+      const maskedSecret = secret.length > 4 ? `${secret.substring(0, 2)}...${secret.substring(secret.length - 2)}` : '****';
+      console.error(`[Order Security] Signature mismatch.`);
+      console.error(`  - Table: ${tableNumber}`);
+      console.error(`  - Tenant: ${tenantId}`);
+      console.error(`  - Data to Sign: "${dataToSign}"`);
+      console.error(`  - Secret (Masked): ${maskedSecret}`);
+      console.error(`  - Received Signature: ${signature}`);
       return NextResponse.json({ error: 'Invalid table signature. Forgery detected.' }, { status: 403 });
     }
 
@@ -111,6 +127,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ success: true, order: newOrder });
   } catch (error: any) {
+    console.error("[Customer Orders POST] Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

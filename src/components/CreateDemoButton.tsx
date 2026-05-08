@@ -82,6 +82,7 @@ export default function CreateDemoButton() {
         signature: tables[0].qrCodeSignature,
       });
     } catch (err: any) {
+      console.error("[Demo Generation] Error:", err);
       setError(err.message || "An error occurred");
     } finally {
       setLoading(false);

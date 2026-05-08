@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/db';
 import { tables } from '@/db/schema';
-import { signTableUrl } from '@/lib/utils';
+import { signTableSignature } from '@/lib/crypto/signature';
 import { eq, asc } from 'drizzle-orm';
-import { getEnv } from '@/lib/cloudflare';
+import { getRequiredSecret } from '@/lib/cloudflare';
 
 export async function GET(request: Request) {
   try {
@@ -33,11 +33,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'tenantId and tableNumbers array are required' }, { status: 400 });
     }
 
-    const secret = getEnv().JWT_SECRET || 'fallback-secret';
+    const secret = getRequiredSecret('JWT_SECRET');
     const newTables = [];
     
     for (const tableNumber of tableNumbers) {
-      const qrCodeSignature = await signTableUrl(tenantId, tableNumber, secret);
+      const qrCodeSignature = await signTableSignature(tenantId, tableNumber, secret);
       const id = crypto.randomUUID();
       
       const [newTable] = await db.insert(tables).values({
@@ -52,6 +52,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json(newTables);
   } catch (error: any) {
+    console.error("[Admin Tables API] Error creating tables:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

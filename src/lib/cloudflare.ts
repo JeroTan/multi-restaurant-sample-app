@@ -9,6 +9,22 @@ export function getEnv() {
   }
 }
 
+/**
+ * Safely retrieves a required environment variable.
+ * Throws a descriptive error if the variable is missing.
+ */
+export function getRequiredSecret(name: keyof Env): string {
+  const env = getEnv();
+  const value = env[name];
+  
+  if (!value || typeof value !== 'string') {
+    console.error(`[Environment] Missing required secret: ${name}`);
+    throw new Error(`Critical Configuration Error: ${name} is not defined in the environment.`);
+  }
+  
+  return value;
+}
+
 export async function getEnvAsync(){
   return (await getCloudflareContext({async: true})).env as Env;
 }

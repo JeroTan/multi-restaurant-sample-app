@@ -28,7 +28,7 @@ export default function CustomerMenuClient({ tenant, table, signature, categorie
     
     // WebSocket Setup
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws?tenantId=${tenant.id}`;
+    const wsUrl = `${protocol}//${window.location.host}/ws?tenantId=${tenant.id}&tableNumber=${table.tableNumber}&signature=${signature}`;
     let ws = new WebSocket(wsUrl);
 
     ws.onmessage = (event) => {
