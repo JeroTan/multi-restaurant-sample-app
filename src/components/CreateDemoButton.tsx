@@ -91,33 +91,33 @@ export default function CreateDemoButton() {
 
   if (demoData) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-left w-full max-w-2xl mx-auto shadow-sm">
-        <h3 className="text-xl font-bold text-green-900 mb-2">🎉 Demo Environment Ready!</h3>
-        <p className="text-green-800 mb-6">We've created a temporary restaurant, table, and menu just for you.</p>
+      <div className="bg-graphite-a border border-graphite-b rounded-lg p-6 text-left w-full max-w-2xl mx-auto shadow-sm">
+        <h3 className="text-xl font-bold text-pure-white mb-2">🎉 Demo Environment Ready!</h3>
+        <p className="text-pure-white/80 mb-6">We've created a temporary restaurant, table, and menu just for you.</p>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Link 
             href={`/${demoData.slug}/${demoData.tableNumber}?sig=${demoData.signature}`}
-            className="flex items-center justify-between bg-white p-4 rounded-lg border border-green-100 shadow-sm hover:shadow-md transition-shadow group"
+            className="retail-card flex items-center justify-between p-4 group"
             target="_blank"
           >
             <div>
-              <p className="font-bold text-gray-900">Customer H5 Menu</p>
+              <p className="font-bold text-near-black">Customer H5 Menu</p>
               <p className="text-xs text-gray-500 mt-1">Simulate scanning a QR code</p>
             </div>
-            <ArrowRight className="w-5 h-5 text-green-600 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-5 h-5 text-apple-blue group-hover:translate-x-1 transition-transform" />
           </Link>
           
           <Link 
             href={`/${demoData.slug}/orders`}
-            className="flex items-center justify-between bg-white p-4 rounded-lg border border-green-100 shadow-sm hover:shadow-md transition-shadow group"
+            className="retail-card flex items-center justify-between p-4 group"
             target="_blank"
           >
             <div>
-              <p className="font-bold text-gray-900">Admin Dashboard</p>
+              <p className="font-bold text-near-black">Admin Dashboard</p>
               <p className="text-xs text-gray-500 mt-1">Manage orders and menu</p>
             </div>
-            <ArrowRight className="w-5 h-5 text-green-600 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-5 h-5 text-apple-blue group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
       </div>
@@ -125,22 +125,22 @@ export default function CreateDemoButton() {
   }
 
   return (
-    <div className="w-full max-w-sm mx-auto">
+    <div className="w-full max-w-sm mx-auto font-inter-tight">
       <button
         onClick={createDemo}
         disabled={loading}
-        className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-4 px-8 rounded-xl shadow-lg flex items-center justify-center gap-3 transition-colors disabled:opacity-70"
+        className="w-full capsule-cta flex items-center justify-center gap-3 disabled:opacity-70"
       >
         {loading ? (
           <>
-            <Loader2 className="w-6 h-6 animate-spin" />
+            <Loader2 className="w-6 h-6 animate-spin text-pure-white" />
             Generating Demo...
           </>
         ) : (
           "Generate Live Demo Environment"
         )}
       </button>
-      {error && <p className="text-red-500 text-sm mt-3 text-center">{error}</p>}
+      {error && <p className="text-red-400 text-sm mt-3 text-center">{error}</p>}
     </div>
   );
 }
