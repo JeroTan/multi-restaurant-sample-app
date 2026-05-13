@@ -77,7 +77,7 @@ export default {
       return obj.fetch(request);
     }
 
-    // 2. Delegate all other traffic to the OpenNext Next.js handler
+    // 3. Delegate all other traffic to the OpenNext Next.js handler
     console.log(`[Custom Worker] Delegating ${url.pathname} to OpenNext handler`);
     return handler.fetch(request, env, ctx);
   },
@@ -86,5 +86,6 @@ export default {
     ctx.waitUntil(runDailyCleanup(env));
   },
   
+  // Re-exporting here helps some build tools correctly identify the DO class
   OrderSync,
 };

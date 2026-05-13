@@ -16,3 +16,4 @@
 | `00012` | durable_object_free_plan_fix | Completed |
 | `00013` | fix_table_signature_security | 2026-05-08-00013_fix_table_signature_security |
 | `00014` | live_demo_ui_overhaul | In Progress |
+| `00015` | table_management_and_qr | Completed |

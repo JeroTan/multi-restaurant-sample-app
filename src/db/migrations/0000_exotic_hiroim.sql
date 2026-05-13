@@ -1,8 +1,20 @@
+CREATE TABLE `admins` (
+	`id` text PRIMARY KEY NOT NULL,
+	`tenant_id` text NOT NULL,
+	`name` text NOT NULL,
+	`email` text NOT NULL,
+	`password_hash` text NOT NULL,
+	`reset_token` text,
+	`reset_expires` integer,
+	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
 CREATE TABLE `categories` (
 	`id` text PRIMARY KEY NOT NULL,
 	`tenant_id` text NOT NULL,
 	`name` text NOT NULL,
 	`order` integer DEFAULT 0,
+	`is_deleted` integer DEFAULT false,
 	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
@@ -15,6 +27,7 @@ CREATE TABLE `dishes` (
 	`price` real NOT NULL,
 	`image_url` text,
 	`is_sold_out` integer DEFAULT false,
+	`is_deleted` integer DEFAULT false,
 	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON UPDATE no action ON DELETE no action
 );
@@ -46,6 +59,7 @@ CREATE TABLE `tables` (
 	`tenant_id` text NOT NULL,
 	`table_number` text NOT NULL,
 	`qr_code_signature` text NOT NULL,
+	`is_deleted` integer DEFAULT false,
 	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
@@ -57,4 +71,5 @@ CREATE TABLE `tenants` (
 	`created_at` integer
 );
 --> statement-breakpoint
+CREATE UNIQUE INDEX `admins_email_unique` ON `admins` (`email`);--> statement-breakpoint
 CREATE UNIQUE INDEX `tenants_slug_unique` ON `tenants` (`slug`);

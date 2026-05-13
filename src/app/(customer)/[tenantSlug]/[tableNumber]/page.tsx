@@ -23,7 +23,8 @@ export default async function CustomerPage(props: {
   const [table] = await db.select().from(tables).where(
     and(
       eq(tables.tenantId, tenant.id),
-      eq(tables.tableNumber, decodedTableNumber)
+      eq(tables.tableNumber, decodedTableNumber),
+      eq(tables.isDeleted, false)
     )
   );
   

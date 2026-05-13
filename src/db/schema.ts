@@ -15,6 +15,7 @@ export const tables = sqliteTable("tables", {
   tenantId: text("tenant_id").references(() => tenants.id).notNull(),
   tableNumber: text("table_number").notNull(),
   qrCodeSignature: text("qr_code_signature").notNull(),
+  isDeleted: integer("is_deleted", { mode: "boolean" }).default(false),
 });
 
 // Categories

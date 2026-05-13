@@ -1,1 +1,0 @@
-ALTER TABLE `dishes` ADD `is_deleted` integer DEFAULT false;

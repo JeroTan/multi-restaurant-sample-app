@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/db';
 import { tables } from '@/db/schema';
 import { signTableSignature } from '@/lib/crypto/signature';
-import { eq, asc } from 'drizzle-orm';
+import { eq, asc, and, inArray } from 'drizzle-orm';
 import { getRequiredSecret } from '@/lib/cloudflare';
 
 export async function GET(request: Request) {
@@ -15,10 +15,17 @@ export async function GET(request: Request) {
     }
     
     const db = getDb();
-    const allTables = await db.select().from(tables).where(eq(tables.tenantId, tenantId)).orderBy(asc(tables.tableNumber));
+    const allTables = await db.select()
+      .from(tables)
+      .where(and(
+        eq(tables.tenantId, tenantId),
+        eq(tables.isDeleted, false)
+      ))
+      .orderBy(asc(tables.tableNumber));
     
     return NextResponse.json(allTables);
   } catch (error: any) {
+    console.error("[Admin Tables GET] Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -52,7 +59,31 @@ export async function POST(request: Request) {
     
     return NextResponse.json(newTables);
   } catch (error: any) {
-    console.error("[Admin Tables API] Error creating tables:", error);
+    console.error("[Admin Tables POST] Error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const body = await request.json();
+    const { tenantId, tableIds } = body as { tenantId: string, tableIds: string[] };
+
+    if (!tenantId || !tableIds || !tableIds.length) {
+      return NextResponse.json({ error: 'tenantId and tableIds array are required' }, { status: 400 });
+    }
+
+    const db = getDb();
+    await db.update(tables)
+      .set({ isDeleted: true })
+      .where(and(
+        eq(tables.tenantId, tenantId),
+        inArray(tables.id, tableIds)
+      ));
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error("[Admin Tables Bulk DELETE] Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

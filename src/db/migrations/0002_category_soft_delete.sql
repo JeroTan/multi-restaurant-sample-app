@@ -1,1 +1,0 @@
-ALTER TABLE `categories` ADD `is_deleted` integer DEFAULT false;
