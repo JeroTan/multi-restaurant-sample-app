@@ -10,6 +10,13 @@ export const metadata: Metadata = {
   description: 'Multi-tenant QR code ordering platform',
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({
   children,
 }: {

@@ -109,7 +109,7 @@ export default function CustomerMenuClient({ tenant, table, signature, categorie
   };
 
   return (
-    <div className="relative pb-24 bg-pale-gray min-h-screen">
+    <div className="relative pb-24 bg-pale-gray min-h-screen w-full">
       {/* Header (Showcase Mode) */}
       <header className="px-6 pt-12 pb-8 bg-pure-white border-b border-graphite-border">
         <h1 className="text-[34px] font-semibold text-near-black tracking-tight leading-none mb-2">{tenant.name}</h1>

@@ -6,7 +6,7 @@ export default function CustomerLayout({
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Mobile-first customer layout, extra padding at bottom for floating cart */}
-      <main className="max-w-md mx-auto bg-white min-h-screen shadow-sm">
+      <main className="w-full max-w-md mx-auto bg-white min-h-screen shadow-sm">
         {children}
       </main>
     </div>
